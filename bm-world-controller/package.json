@@ -1,0 +1,21 @@
+{
+  "name": "bm-world-controller-test-server",
+  "version": "1.0.0",
+  "description": "Test WebSocket server for BlockMarket World Controller",
+  "main": "test-websocket-server.js",
+  "scripts": {
+    "start": "node test-websocket-server.js",
+    "test": "echo \"Run the WebSocket server and test with your Minecraft plugin\""
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "keywords": [
+    "websocket",
+    "minecraft",
+    "plugin",
+    "test"
+  ],
+  "author": "BlockMarket Team",
+  "license": "MIT"
+}

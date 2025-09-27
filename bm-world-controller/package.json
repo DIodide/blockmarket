@@ -8,6 +8,7 @@
     "test": "echo \"Run the WebSocket server and test with your Minecraft plugin\""
   },
   "dependencies": {
+    "nodemon": "^3.1.10",
     "ws": "^8.18.3"
   },
   "keywords": [

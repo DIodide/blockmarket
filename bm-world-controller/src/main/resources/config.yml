@@ -1,0 +1,68 @@
+# BlockMarket World Controller Configuration
+
+# WebSocket Server Configuration
+websocket:
+  # The WebSocket server URL to connect to
+  server-url: "wss://unevangelical-hemiparetic-annamaria.ngrok-free.dev:8080/"
+  
+  # Whether to automatically reconnect on connection loss
+  auto-reconnect: true
+  
+  # Maximum number of reconnection attempts (0 = unlimited)
+  max-reconnect-attempts: 5
+  
+  # Delay between reconnection attempts (in seconds)
+  reconnect-delay: 5
+
+# Command Execution Settings
+commands:
+  # Whether to require OP permissions for commands
+  require-op: true
+  
+  # List of allowed commands (empty list = allow all except blocked)
+  allowed-commands:
+    - "say"
+    - "tell"
+    - "msg"
+    - "give"
+    - "tp"
+    - "teleport"
+    - "gamemode"
+    - "weather"
+    - "time"
+    - "effect"
+    - "title"
+    - "broadcast"
+  
+  # List of blocked commands (these will never be executed)
+  blocked-commands:
+    - "stop"
+    - "restart"
+    - "reload"
+    - "ban"
+    - "kick"
+    - "op"
+    - "deop"
+    - "whitelist"
+
+# Message Processing
+messages:
+  # Whether to log all received WebSocket messages
+  log-messages: true
+  
+  # Whether to log all executed commands
+  log-commands: true
+  
+  # Prefix for messages sent to players
+  message-prefix: "&7[&6BlockMarket&7]&r "
+
+# Security Settings
+security:
+  # Whether to validate command syntax before execution
+  validate-commands: true
+  
+  # Maximum command length (0 = no limit)
+  max-command-length: 256
+  
+  # Whether to strip color codes from commands
+  strip-color-codes: true

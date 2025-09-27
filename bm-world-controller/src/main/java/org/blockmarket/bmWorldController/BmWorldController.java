@@ -2,6 +2,7 @@ package org.blockmarket.bmWorldController;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.logging.Level;
 
@@ -11,6 +12,7 @@ public final class BmWorldController extends JavaPlugin {
     private CommandExecutor commandExecutor;
     private String serverUrl;
     private boolean autoReconnect;
+    private BukkitTask connectionCheckTask;
 
     @Override
     public void onEnable() {
@@ -35,6 +37,12 @@ public final class BmWorldController extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Cancel connection check task
+        if (connectionCheckTask != null && !connectionCheckTask.isCancelled()) {
+            connectionCheckTask.cancel();
+            getLogger().info("Cancelled connection check task");
+        }
+        
         // Disconnect WebSocket
         if (webSocketManager != null) {
             webSocketManager.disconnect();
@@ -44,7 +52,9 @@ public final class BmWorldController extends JavaPlugin {
     }
 
     private void loadConfiguration() {
-        serverUrl = getConfig().getString("websocket.server-url", "ws://localhost:8080/websocket");
+        //serverUrl = getConfig().getString("websocket.server-url", "wss://unevangelical-hemiparetic-annamaria.ngrok-free.dev:8080/");
+        serverUrl = "wss://unevangelical-hemiparetic-annamaria.ngrok-free.dev/";
+        System.out.println("serverUrl: " + serverUrl);
         autoReconnect = getConfig().getBoolean("websocket.auto-reconnect", true);
     }
 
@@ -54,10 +64,10 @@ public final class BmWorldController extends JavaPlugin {
             webSocketManager.connect();
             
             // Schedule periodic connection check
-            new BukkitRunnable() {
+            connectionCheckTask = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (!webSocketManager.isConnected() && autoReconnect) {
+                    if (isEnabled() && !webSocketManager.isConnected() && autoReconnect) {
                         getLogger().warning("WebSocket disconnected, attempting to reconnect...");
                         webSocketManager.forceReconnect();
                     }

@@ -2,6 +2,7 @@ package org.blockmarket.bmWorldController;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -15,9 +16,11 @@ public class WebSocketManager {
     private final String serverUrl;
     private final Consumer<String> messageHandler;
     private boolean isConnected = false;
+    private boolean isShuttingDown = false;
     private int reconnectAttempts = 0;
     private final int maxReconnectAttempts = 5;
     private final long reconnectDelay = 5000; // 5 seconds
+    private BukkitTask reconnectTask = null;
 
     public WebSocketManager(JavaPlugin plugin, String serverUrl, Consumer<String> messageHandler) {
         this.plugin = plugin;
@@ -48,8 +51,8 @@ public class WebSocketManager {
                     plugin.getLogger().warning("WebSocket connection closed. Code: " + code + ", Reason: " + reason);
                     isConnected = false;
                     
-                    // Attempt to reconnect if not manually closed
-                    if (code != 1000 && reconnectAttempts < maxReconnectAttempts) {
+                    // Attempt to reconnect if not manually closed and plugin is still enabled
+                    if (code != 1000 && reconnectAttempts < maxReconnectAttempts && !isShuttingDown && plugin.isEnabled()) {
                         scheduleReconnect();
                     }
                 }
@@ -68,7 +71,9 @@ public class WebSocketManager {
                     webSocketClient.connect();
                 } catch (Exception e) {
                     plugin.getLogger().severe("Failed to connect to WebSocket: " + e.getMessage());
-                    scheduleReconnect();
+                    if (plugin.isEnabled() && !isShuttingDown) {
+                        scheduleReconnect();
+                    }
                 }
             });
 
@@ -79,6 +84,12 @@ public class WebSocketManager {
     }
 
     private void scheduleReconnect() {
+        // Check if plugin is still enabled before scheduling tasks
+        if (!plugin.isEnabled() || isShuttingDown) {
+            plugin.getLogger().info("Plugin is disabled or shutting down, skipping reconnection attempt");
+            return;
+        }
+        
         if (reconnectAttempts >= maxReconnectAttempts) {
             plugin.getLogger().severe("Max reconnection attempts reached. Stopping reconnection attempts.");
             return;
@@ -87,14 +98,27 @@ public class WebSocketManager {
         reconnectAttempts++;
         plugin.getLogger().info("Scheduling reconnection attempt " + reconnectAttempts + "/" + maxReconnectAttempts + " in " + (reconnectDelay / 1000) + " seconds");
         
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-            if (!isConnected) {
+        // Cancel any existing reconnect task
+        if (reconnectTask != null && !reconnectTask.isCancelled()) {
+            reconnectTask.cancel();
+        }
+        
+        reconnectTask = Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+            if (!isConnected && !isShuttingDown && plugin.isEnabled()) {
                 connect();
             }
         }, reconnectDelay / 50); // Convert milliseconds to ticks (50ms = 1 tick)
     }
 
     public void disconnect() {
+        isShuttingDown = true;
+        
+        // Cancel any pending reconnect tasks
+        if (reconnectTask != null && !reconnectTask.isCancelled()) {
+            reconnectTask.cancel();
+            plugin.getLogger().info("Cancelled pending reconnection task");
+        }
+        
         if (webSocketClient != null && isConnected) {
             webSocketClient.close(1000, "Plugin shutting down");
             isConnected = false;
@@ -115,6 +139,11 @@ public class WebSocketManager {
     }
 
     public void forceReconnect() {
+        if (isShuttingDown || !plugin.isEnabled()) {
+            plugin.getLogger().info("Plugin is disabled or shutting down, skipping force reconnect");
+            return;
+        }
+        
         if (webSocketClient != null) {
             webSocketClient.close();
         }

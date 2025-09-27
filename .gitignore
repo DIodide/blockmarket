@@ -63,3 +63,6 @@ Thumbs.db
 *.jar
 target/
 bm-world-controller/.idea/misc.xml
+
+bm-world-controller/target
+.vscode

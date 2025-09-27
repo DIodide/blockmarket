@@ -2,17 +2,17 @@
 
 # WebSocket Server Configuration
 websocket:
-  # The WebSocket server URL to connect to
-  server-url: "wss://unevangelical-hemiparetic-annamaria.ngrok-free.dev:8080/"
+  # Enable WebSocket server
+  enabled: true
   
-  # Whether to automatically reconnect on connection loss
-  auto-reconnect: true
+  # Port for the WebSocket server to listen on
+  port: 8080
   
-  # Maximum number of reconnection attempts (0 = unlimited)
-  max-reconnect-attempts: 5
+  # Bind address (0.0.0.0 for all interfaces, 127.0.0.1 for localhost only)
+  bind-address: "0.0.0.0"
   
-  # Delay between reconnection attempts (in seconds)
-  reconnect-delay: 5
+  # Maximum number of concurrent client connections
+  max-connections: 100
 
 # Command Execution Settings
 commands:

@@ -62,3 +62,4 @@ Thumbs.db
 # Build artifacts
 *.jar
 target/
+bm-world-controller/.idea/misc.xml

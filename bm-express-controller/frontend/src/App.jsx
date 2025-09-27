@@ -1,26 +1,23 @@
 import { useState } from 'react'
 import { useEffect } from 'react'
+import {io} from 'socket.io-client'
 import './App.css'
-
+const socket = io('http://localhost:3001/frontend')
 function App() {
   const [count, setCount] = useState(0)
-  const [message, setMessage] = useState([])
-  const [socket, setSocket] = useState(null)
-  useEffect(() => {
-    
-    const newSocket = new WebSocket('ws://localhost:3000')
-    setSocket(newSocket)
-    newSocket.onopen = () => {
-        console.log("Client connected to server")
-        newSocket.send("Hello from client")
-    }
-    newSocket.onmessage = (event) => {
-        setMessage((prev) => [...prev, event.data])
-    }
-    newSocket.onclose = () => {
-        console.log("Client disconnected from server")
-    }
-  }, [])
+    useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to server")
+    })
+    socket.on("welcome", (msg) => {
+      console.log("Welcome message: " + msg)
+         })
+    return () => {
+        socket.off("connect")
+        socket.off("welcome")
+      }
+   
+  })
   
   
   return (

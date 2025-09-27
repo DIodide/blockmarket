@@ -1,31 +1,25 @@
-import express from 'express';
-import http from 'http';
-import {WebSocketServer} from 'ws';
-
-
-
+import express from "express";
+import {createServer} from "http";
+import {Server} from "socket.io";
 
 const app = express();
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
-
-wss.on('connection', (ws) => {
-  console.log('Client connected');
-
-  ws.on('message', (message) => {
-    console.log('Received message:', message.toString());
-    ws.send('Message received'); })
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-  });
+const server = createServer(app);
+const io = new Server(server, {
+    cors: {origin: "*", methods: ["GET", "POST"]}
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const frontendNS = io.of("/frontend");
+const mindFlayerNS = io.of("/mindFlayer");
 
+frontendNS.on("connection", (socket) => {
+    console.log("Frontend client connected");
+    socket.on("chat message", (msg) => {
+        console.log("Message: " + msg);
+    })
+})
 
-
-
+mindFlayerNS.on("connection", (socket) => {
+    console.log("MindFlayer client connected");
+})
+const port = process.env.PORT || 3001;
+server.listen(port)

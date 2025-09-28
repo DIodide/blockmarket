@@ -8,7 +8,8 @@ const Grid = ({
   onClearSelection, 
   onBackToInput, 
   onStartSimulation, 
-  isConnected 
+  isConnected,
+  onEditingInventoriesChange 
 }) => {
   const renderGrid = () => {
     const size = parseInt(playAreaSize);
@@ -49,6 +50,7 @@ const Grid = ({
         <InventorySidePanel 
           selectedCells={selectedCells}
           isVisible={true}
+          onEditingInventoriesChange={onEditingInventoriesChange}
         />
       </div>
       <div className="grid-controls">

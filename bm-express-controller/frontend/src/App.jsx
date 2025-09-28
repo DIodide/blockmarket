@@ -20,6 +20,7 @@ function App() {
   const [showGrid, setShowGrid] = useState(false);
   const [selectedCells, setSelectedCells] = useState(new Set());
   const [inventories, setInventories] = useAtom(inventoriesAtom);
+  const [editingInventories, setEditingInventories] = useState(new Map());
   
   const { isConnected, startSimulation } = useSocket();
 
@@ -35,7 +36,24 @@ function App() {
 
   const handleStartSimulation = () => {
     if (playAreaSize && isConnected && selectedCells.size > 0) {
-      const success = startSimulation(playAreaSize, selectedCells);
+      // Merge editing inventories to global atom before starting simulation
+      const newInventories = new Map(inventories);
+      editingInventories.forEach((inventory, cellKey) => {
+        newInventories.set(cellKey, { ...inventory });
+      });
+      setInventories(newInventories);
+      
+      // Filter inventories to only include currently selected cells
+      const selectedInventories = new Map();
+      selectedCells.forEach(cellKey => {
+        if (newInventories.has(cellKey)) {
+          selectedInventories.set(cellKey, newInventories.get(cellKey));
+        }
+      });
+      
+      console.log('Selected inventories for simulation:', Object.fromEntries(selectedInventories));
+      
+      const success = startSimulation(selectedInventories);
       if (!success) {
         alert('Failed to start simulation. Please try again.');
       }
@@ -67,10 +85,17 @@ function App() {
 
   const handleClearSelection = () => {
     setSelectedCells(new Set());
+    // Clear inventories for cells that are no longer selected
+    setInventories(new Map());
+    setEditingInventories(new Map());
   };
 
   const handleBackToInput = () => {
     setShowGrid(false);
+  };
+
+  const handleEditingInventoriesChange = (newEditingInventories) => {
+    setEditingInventories(newEditingInventories);
   };
 
   return (
@@ -96,6 +121,7 @@ function App() {
             onBackToInput={handleBackToInput}
             onStartSimulation={handleStartSimulation}
             isConnected={isConnected}
+            onEditingInventoriesChange={handleEditingInventoriesChange}
           />
         )}
         

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { inventoriesAtom } from '../atoms/inventory';
 
-const InventorySidePanel = ({ selectedCells, isVisible }) => {
+const InventorySidePanel = ({ selectedCells, isVisible, onEditingInventoriesChange }) => {
   const [inventories, setInventories] = useAtom(inventoriesAtom);
   const [editingInventories, setEditingInventories] = useState(new Map());
 
@@ -22,6 +22,13 @@ const InventorySidePanel = ({ selectedCells, isVisible }) => {
     setEditingInventories(newEditingInventories);
   }, [selectedCells, inventories]);
 
+  // Notify parent component when editing inventories change
+  useEffect(() => {
+    if (onEditingInventoriesChange) {
+      onEditingInventoriesChange(editingInventories);
+    }
+  }, [editingInventories, onEditingInventoriesChange]);
+
   const handleInventoryChange = (cellKey, itemType, value) => {
     const newEditingInventories = new Map(editingInventories);
     const cellInventory = newEditingInventories.get(cellKey) || {};
@@ -30,14 +37,6 @@ const InventorySidePanel = ({ selectedCells, isVisible }) => {
     setEditingInventories(newEditingInventories);
   };
 
-  const handleSubmit = () => {
-    const newInventories = new Map(inventories);
-    editingInventories.forEach((inventory, cellKey) => {
-      newInventories.set(cellKey, { ...inventory });
-    });
-    setInventories(newInventories);
-    console.log('Inventories updated:', Object.fromEntries(newInventories));
-  };
 
   const itemTypes = ['diamond', 'gold', 'apple', 'emerald', 'redstone'];
   const itemIcons = {
@@ -97,12 +96,6 @@ const InventorySidePanel = ({ selectedCells, isVisible }) => {
               );
             })}
           </div>
-          <button 
-            onClick={handleSubmit}
-            className="submit-inventory-button"
-          >
-            Update Inventories
-          </button>
         </>
       )}
     </div>

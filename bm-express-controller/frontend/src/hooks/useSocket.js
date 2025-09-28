@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { useAtom } from 'jotai';
+import { inventoriesAtom } from '../atoms/inventory';
 
 const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [socket, setSocket] = useState(null);
+  const [inventories, setInventories] = useAtom(inventoriesAtom);
 
   useEffect(() => {
     const url = import.meta.env.VITE_MASTER_SERVER_URL;
@@ -48,14 +51,14 @@ const useSocket = () => {
     };
   }, []);
 
-  const startSimulation = (playAreaSize, selectedCells) => {
+  const startSimulation = (simulationStartInventories) => {
     if (socket && isConnected) {
-      const selectedCellsArray = Array.from(selectedCells);
+      // const selectedCellsArray = Array.from(selectedCells);
       socket.emit('start_simulation', { 
-        playAreaSize: parseInt(playAreaSize),
-        selectedCells: selectedCellsArray
+        botInventoryMap: Object.fromEntries(simulationStartInventories)
       });
-      console.log(`Starting simulation with ${selectedCells.size} selected cells`);
+      console.log('Starting simulation with inventories:', Object.fromEntries(simulationStartInventories));
+       //console.log(`Starting simulation with ${selectedCells.size} selected cells`);
       return true;
     }
     return false;

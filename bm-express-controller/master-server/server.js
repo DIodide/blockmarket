@@ -15,8 +15,9 @@ frontendNS.on("connection", (socket) => {
     console.log("Frontend client connected");
     socket.emit("welcome", "Welcome to BlockMarket!");
     
-    socket.on("chat message", (msg) => {
-        console.log("Message: " + msg);
+    socket.on("start_simulation", (data) => {
+        console.log("Starting simulation with inventories:", data);
+        mindFlayerNS.emit("start_simulation", data)
     })
     
     socket.on("disconnect", () => {
@@ -27,10 +28,6 @@ frontendNS.on("connection", (socket) => {
 mindFlayerNS.on("connection", (socket) => {
     console.log("MindFlayer client connected");
     
-    socket.on("new data", (data) => {
-        console.log("Received new data from MindFlayer:", data);
-        frontendNS.emit("data_update", data);
-    });
 })
 const port = process.env.PORT || 3001;
 server.listen(port, "0.0.0.0", () => {

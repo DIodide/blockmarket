@@ -718,9 +718,15 @@ cd blockmarket
 ./quick-setup.sh  # Automated setup script
 
 # 2. Launch everything
+On Mac: 
+chmod +x start-all.sh 
 ./start-all.sh
+On Windows:
+.\start-all.bat
 
-# 3. Open browser to http://localhost:5001 to see the AI agents trading!
+
+# 3. Open browser to http://localhost:3000 to starting conditions
+Note: only a 10 x 10 grid with 5 agents is supported right now
 
 # 4. To stop all services
 ./stop-all.sh

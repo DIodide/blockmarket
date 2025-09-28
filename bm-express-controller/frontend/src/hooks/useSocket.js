@@ -12,7 +12,7 @@ const useSocket = () => {
     const url = import.meta.env.VITE_MASTER_SERVER_URL;
     console.log("Master server URL:", url);
     
-    const socketInstance = io(url, {
+    const socketInstance = io("https://d46772db4el.ngrok-free-app/frontend", {
       transports: ["websocket"], // helps avoid long-polling issues with ngrok
     });
 

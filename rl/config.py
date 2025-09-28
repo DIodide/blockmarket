@@ -1,0 +1,50 @@
+import yaml
+import os
+
+
+def load_config():
+    """Load configuration from YAML file or return defaults."""
+    config_path = 'config.yaml'
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    else:
+        # Default configuration for multi-agent trading environment
+        return {
+            'environment': {
+                'world_size': 100.0,  # Size of the 2D trading world
+                'max_trade_distance': 20.0,  # Maximum distance for trades
+                'max_trade_amount': 10.0,  # Maximum amount per trade
+                'items_list': ['wood', 'stone', 'iron', 'gold', 'food'],  # Available items
+                'population_size': 50,  # Number of agents
+                'generation_length': 100,  # Timesteps per generation
+                'survival_rate': 0.5,  # Fraction of agents that survive each generation
+                'mutation_rate': 0.1  # Probability of mutation for offspring
+            },
+            'network': {
+                'hidden_dim': 128  # Hidden layer dimension for neural networks
+            },
+            'learning': {
+                'learning_rate': 0.001,  # Learning rate for neural network optimization
+                'matrix_update_rate': 0.1  # Rate at which trading matrix is updated
+            },
+            'training': {
+                'max_generations': 100,  # Maximum number of generations to run
+                'simulation_speed': 0.01,  # Sleep time between timesteps (seconds)
+                'model_save_frequency': 10,  # Save models every N generations
+                'model_save_path': 'models/trading_agents',  # Directory to save models
+                'log_frequency': 10,  # Log summary every N timesteps
+                'early_stopping_patience': 20,  # Stop if no improvement for N generations
+                'target_fitness': 100.0  # Target fitness to consider problem solved
+            },
+            'server': {
+                'host': '0.0.0.0',  # Web server host
+                'port': 8080,  # Web server port
+                'debug': False  # Flask debug mode
+            },
+            'logging': {
+                'level': 'INFO',  # Logging level
+                'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Log format
+                'log_file': 'trading.log'  # Log file path
+            }
+        }

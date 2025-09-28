@@ -1,0 +1,69 @@
+// example.js
+const { Sim } = require('./src/sim');
+
+// 3x3 grid; 1 = spawn a bot at that cell (row-major)
+const grid = []
+for (let i = 0; i < 10; i++) {
+  const row = []
+  for (let j = 0; j < 10; j++) {
+    row.push(0)
+  }
+  grid.push(row)
+}
+
+grid[9][0] = 1
+grid[9][9] = 1
+grid[0][0] = 1
+grid[0][9] = 1
+grid[5][4] = 1
+grid[5][5] = 1
+grid[2][2] = 1
+grid[8][8] = 1
+grid[2][8] = 1
+grid[8][2] = 1
+// grid[0][0] = 1
+// grid[0][1] = 1
+// grid[0][2] = 1
+// grid[0][3] = 1
+// grid[0][4] = 1
+// grid[0][5] = 1
+// grid[0][6] = 1
+// grid[0][7] = 1
+// grid[0][8] = 1
+// grid[0][9] = 1
+
+const sim = new Sim({
+  host: 'mcpanel.blockwarriors.ai',   // NOT the panel domain
+  port: 25565,
+  version: '1.20.6',
+  auth: 'offline',                  // use 'microsoft' on online-mode servers
+  usernames: Array.from({length: 10}, (_, i) => `Bot${i+1}`),
+  grid,
+  base: { x: -13.5, y: -60, z: -13.5 },      // origin of grid
+  spacing: 27/9                        // blocks between grid cells
+});
+
+sim.spawnFromGrid();
+
+
+// everything here should happen after bots are spawned
+for (let phase = 0; phase < 4; phase++) {
+  setTimeout(() => {
+    arr = ['Bot1', 'Bot2', 'Bot3', 'Bot4', 'Bot5', 'Bot6', 'Bot7', 'Bot8', 'Bot9', 'Bot10',];
+    // shuffle(arr);
+    // Implement random shuffle of the array
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+
+    sim.trade(arr[0], 'apple', arr[1], 'gold_ingot');
+    sim.trade(arr[2], 'apple', arr[3], 'gold_ingot');
+    sim.trade(arr[4], 'apple', arr[5], 'gold_ingot');
+    sim.trade(arr[6], 'apple', arr[7], 'gold_ingot');
+    sim.trade(arr[8], 'apple', arr[9], 'gold_ingot');
+  }, 5000 + phase * 9500);
+}
+
+
+// console.log('Trade animation complete.');

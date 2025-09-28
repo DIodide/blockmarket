@@ -9,7 +9,8 @@ const io = new Server(server, {
 });
 
 const frontendNS = io.of("/frontend");
-const mindFlayerNS = io.of("/mindFlayer");
+const mineFlayerNS = io.of("/mineflayer");
+const modelNS = io.of("/model");
 
 frontendNS.on("connection", (socket) => {
     console.log("Frontend client connected");
@@ -17,7 +18,8 @@ frontendNS.on("connection", (socket) => {
     
     socket.on("start_simulation", (data) => {
         console.log("Starting simulation with inventories:", data);
-        mindFlayerNS.emit("start_simulation", data)
+        mineFlayerNS.emit("start_simulation", data)
+        modelNS.emit("start_simulation", data)
     })
     
     socket.on("disconnect", () => {
@@ -25,9 +27,18 @@ frontendNS.on("connection", (socket) => {
     })
 })
 
-mindFlayerNS.on("connection", (socket) => {
+mineFlayerNS.on("connection", (socket) => {
     console.log("MindFlayer client connected");
     
+})
+
+modelNS.on("connection", (socket) => {
+    console.log("Model client connected");
+})
+modelNS.on("trade", (data) => {
+    console.log("hub received trade data:", data);
+    mineFlayerNS.emit("trade", data);
+
 })
 const port = process.env.PORT || 3001;
 server.listen(port, "0.0.0.0", () => {

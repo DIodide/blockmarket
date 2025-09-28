@@ -21,92 +21,138 @@ BlockMarket is a cutting-edge reinforcement learning environment where neural ne
 
 ```mermaid
 graph TB
-    subgraph "Qualcomm Snapdragon X Elite Laptop"
+    subgraph "Qualcomm Snapdragon Laptop"
         subgraph "NPU (45 TOPS)"
-            NN[Neural Networks]
-            TM[Trading Matrix Optimizer]
-            RL[RL Inference Engine]
+            NN[Neural Networks<br/>PyTorch Models]
+            TM[Trading Matrix<br/>Optimizer]
         end
 
-        subgraph "RL Core System"
-            ENV[Trading Environment<br/>- 100+ Agents<br/>- Spatial Positions<br/>- Market Dynamics]
-            GA[Genetic Algorithm<br/>- Population Evolution<br/>- Fitness Evaluation<br/>- Selection & Mutation]
-            TRAIN[Training Loop<br/>- Per-timestep Updates<br/>- Reward Calculation<br/>- Policy Updates]
+        subgraph "RL Monorepo (Python)"
+            ENV[Trading Environment<br/>environment.py<br/>- 100+ Agents<br/>- Spatial Positions]
+            AGENT[Trading Agents<br/>agent.py<br/>- Neural Networks<br/>- Trading Matrices]
+            TRAIN[Training Loop<br/>training.py<br/>- Genetic Algorithm<br/>- Fitness Evaluation]
+            FLASK[Flask Server<br/>web_server.py<br/>Port: 5001<br/>- Real-time Metrics<br/>- WebSocket Streaming]
         end
 
-        subgraph "Local Services"
-            WS[WebSocket Server<br/>Port: 8080]
-            EXPRESS[Express API Server<br/>Port: 5000]
-            VIZ[Flask Visualization<br/>Port: 5001]
+        subgraph "Express Controller Monorepo"
+            subgraph "Backend (Node.js)"
+                EXPRESS[Express API<br/>server.js<br/>Port: 5000<br/>- REST Endpoints<br/>- CORS Support]
+                ROUTES[API Routes<br/>- /api/marketplace<br/>- /api/users<br/>- /api/transactions]
+            end
+
+            subgraph "Frontend (React + Vite)"
+                REACT[React App<br/>Port: 3000<br/>- Connection Status<br/>- Trading Grid<br/>- Inventory Panel]
+                HOOKS[WebSocket Hooks<br/>useSocket.js<br/>- Real-time Updates]
+                ATOMS[Recoil State<br/>inventory.js<br/>- Global State Mgmt]
+            end
+        end
+
+        subgraph "World Controller Monorepo (Java)"
+            WS_SERVER[WebSocket Server<br/>WebSocketServer.java<br/>Port: 8080<br/>- Client Management<br/>- Message Routing]
+            FLOOR_BUILDER[Trading Floor Builder<br/>TradingFloorBuilder.java<br/>- Glass Ceiling<br/>- Lighting System]
+            CMD_EXEC[Command Executor<br/>CommandExecutor.java<br/>- Safe Command Execution]
         end
     end
 
-    subgraph "Minecraft Integration"
-        MC[Minecraft Server<br/>- Paper/Spigot 1.20+<br/>- Trading Floor Builder<br/>- Real-time Visualization]
-        PLUGIN[BM World Controller<br/>- WebSocket Client<br/>- Command Executor<br/>- Floor Generator]
+    subgraph "Minecraft Server"
+        MC[Paper 1.20.6<br/>Port: 25565<br/>- 3D Visualization<br/>- Interactive World]
+        PLUGIN[BM Plugin<br/>- Bukkit Integration<br/>- Event Handlers]
     end
 
-    subgraph "Frontend"
-        WEB[React Dashboard<br/>- Real-time Metrics<br/>- Agent Visualization<br/>- Trade Networks]
-    end
+    %% NPU Processing
+    NN -.->|Accelerated<br/>Inference| AGENT
+    TM -.->|Matrix<br/>Optimization| AGENT
 
-    %% NPU Connections
-    NN -->|Inference| ENV
-    TM -->|Optimization| ENV
-    RL -->|Decisions| ENV
+    %% RL Internal Flow
+    ENV <-->|State/<br/>Actions| AGENT
+    AGENT -->|Performance<br/>Metrics| TRAIN
+    TRAIN -->|New<br/>Generation| ENV
+    ENV -->|Environment<br/>Data| FLASK
 
-    %% RL System Flow
-    ENV -->|Agent States| TRAIN
-    TRAIN -->|Fitness Scores| GA
-    GA -->|New Population| ENV
-    ENV -->|Market Data| NN
+    %% Express Internal Flow
+    EXPRESS <-->|API Calls| ROUTES
+    REACT <-->|State<br/>Updates| HOOKS
+    HOOKS <-->|Global<br/>State| ATOMS
 
-    %% Service Connections
-    ENV -->|State Updates| VIZ
-    VIZ -->|WebSocket| WEB
-    EXPRESS -->|REST API| WEB
-    WS <-->|Commands| PLUGIN
-    PLUGIN -->|Build Floors| MC
+    %% Socket Tunneling
+    FLASK ===>|WebSocket<br/>Stream| REACT
+    REACT ===>|Commands| EXPRESS
+    EXPRESS ===>|Relay| WS_SERVER
 
-    %% Data Flow
-    ENV -->|Trade Data| EXPRESS
-    TRAIN -->|Metrics| VIZ
+    %% Minecraft Integration
+    WS_SERVER <-->|WebSocket<br/>Protocol| PLUGIN
+    PLUGIN -->|Bukkit API| MC
+    FLOOR_BUILDER -->|Build<br/>Commands| PLUGIN
+    CMD_EXEC -->|Execute| PLUGIN
 
     %% User Interactions
-    USER[User/Developer]
-    USER -->|HTTP| WEB
-    USER -->|Minecraft Client| MC
-    USER -->|API Calls| EXPRESS
+    USER[User]
+    USER -->|Browser| REACT
+    USER -->|Browser| FLASK
+    USER -->|MC Client| MC
 
-    style NPU fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px
-    style ENV fill:#4ecdc4,stroke:#087f5b,stroke-width:2px
-    style MC fill:#95d600,stroke:#5c7cfa,stroke-width:2px
+    %% Data Flow Types
+    classDef npuStyle fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px
+    classDef rlStyle fill:#4ecdc4,stroke:#087f5b,stroke-width:2px
+    classDef expressStyle fill:#ffd43b,stroke:#fab005,stroke-width:2px
+    classDef mcStyle fill:#95d600,stroke:#5c7cfa,stroke-width:2px
+
+    class NN,TM npuStyle
+    class ENV,AGENT,TRAIN,FLASK rlStyle
+    class EXPRESS,ROUTES,REACT,HOOKS,ATOMS expressStyle
+    class WS_SERVER,FLOOR_BUILDER,CMD_EXEC,MC,PLUGIN mcStyle
 ```
 
 ### How It Works
 
-1. **Reinforcement Learning Core** (Running on Snapdragon NPU):
+1. **Three Monorepos Architecture**:
 
-   - **Trading Environment**: Simulates a marketplace with 100+ AI agents, each with spatial positions and inventories
-   - **Neural Networks**: Each agent has a neural network that runs on the NPU at 45 TOPS for real-time decision making
-   - **Genetic Evolution**: Bottom 50% of agents are eliminated each generation, top performers reproduce with mutations
+   **RL Monorepo (Python)**:
 
-2. **Data Flow**:
+   - `environment.py`: Manages 100+ trading agents with spatial positions
+   - `agent.py`: Neural networks leveraging Snapdragon NPU for 45 TOPS inference
+   - `training.py`: Genetic algorithm implementation for population evolution
+   - `web_server.py`: Flask server streaming real-time metrics via WebSocket
 
-   - Agents observe initial market state → NPU processes observations → Neural networks output trading decisions
-   - Trading matrices are updated every timestep based on market conditions
-   - Successful trades increase agent fitness, driving evolution
+   **Express Controller Monorepo (JavaScript)**:
 
-3. **Visualization Pipeline**:
+   - Backend: Express.js API server with REST endpoints for marketplace data
+   - Frontend: React + Vite app with Recoil state management
+   - WebSocket hooks for real-time updates from Flask server
+   - Responsive UI with trading grid and inventory visualization
 
-   - Flask server streams real-time environment data via WebSocket
-   - React dashboard displays agent positions, trade networks, and performance metrics
-   - Minecraft server provides 3D visualization of trading floors and agent interactions
+   **World Controller Monorepo (Java)**:
+
+   - WebSocket server accepting commands from Express backend
+   - Trading floor builder creating 3D structures in Minecraft
+   - Safe command execution with configurable security
+
+2. **Socket Tunneling Flow**:
+
+   ```
+   RL Environment → Flask WebSocket → React Frontend
+                                          ↓
+   Minecraft Server ← Plugin ← WebSocket ← Express API
+   ```
+
+   - Flask streams environment updates to React dashboard
+   - React sends commands through Express API
+   - Express relays commands to World Controller WebSocket
+   - Plugin executes commands in Minecraft world
+
+3. **NPU Acceleration**:
+
+   - PyTorch models run on Snapdragon NPU for neural network inference
+   - Trading matrix optimization leverages 45 TOPS of AI performance
+   - Real-time agent decision-making with minimal latency
+   - Energy-efficient processing compared to CPU-only execution
 
 4. **Integration Points**:
-   - WebSocket server (port 8080) bridges RL environment with Minecraft
-   - Express API (port 5000) provides RESTful access to trading data
-   - All processing happens locally on the Snapdragon device for privacy
+   - **Port 5001**: Flask visualization dashboard
+   - **Port 5000**: Express API server
+   - **Port 3000**: React development server
+   - **Port 8080**: WebSocket server for Minecraft integration
+   - **Port 25565**: Minecraft server (Paper 1.20.6)
 
 ### Key Innovation Points:
 
@@ -118,26 +164,52 @@ graph TB
 
 ## System Architecture
 
+![whiteboarding](whiteboard.jpg)
+
 ```
-┌─────────────────────────────────────────────────────────┐
-│          Qualcomm Snapdragon X Elite Laptop             │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │         NPU (Neural Processing Unit)             │   │
-│  │  • Agent Neural Networks (45 TOPS)              │   │
-│  │  • Trading Matrix Optimization                  │   │
-│  │  • Real-time Decision Making                    │   │
-│  └─────────────────────────────────────────────────┘   │
-│                                                         │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │              CPU Processing                      │   │
-│  │  • Environment Simulation                        │   │
-│  │  • WebSocket Communication                       │   │
-│  │  • Minecraft Plugin Control                      │   │
-│  └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
-                           │
-                           ├── Local Minecraft Server
-                           └── Web Visualization Dashboard
+┌─────────────────────────────────────────────────────────────────┐
+│              Qualcomm Snapdragon Laptop                         │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │         NPU (45 TOPS) - PyTorch Acceleration            │    │
+│  │  • Neural Network Inference for Trading Agents          │    │
+│  │  • Trading Matrix Optimization                          │    │
+│  │  • Real-time Decision Making                            │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │              RL Monorepo (Python)                       │    │
+│  │  • Trading Environment (100+ agents)     :5001          │    │
+│  │  • Flask WebSocket Server ─────────────────┐            │    │
+│  │  • Genetic Algorithm Evolution             │            │    │
+│  └────────────────────────────────────────────┘            │    │
+│                                                            │    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │        Express Controller Monorepo (JS)                 │    │
+│  │  ┌───────────────────────────┐  ┌────────────────────┐  │    │
+│  │  │   React Frontend :3000    │←─┤ Express API :5000  │  │    │
+│  │  │   • Trading Grid UI       │  │ • REST Endpoints   │  │    │
+│  │  │   • Real-time Updates     │  │ • Command Relay    │─┼───┐
+│  │  │   • Inventory Panel       │  └────────────────────┘ │    │
+│  │  └───────────────────────────┘                         │    │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │      World Controller Monorepo (Java)                   │   │
+│  │  • WebSocket Server :8080 ←─────────────────────────────┘   │
+│  │  • Trading Floor Builder                                │   │
+│  │  • Bukkit Plugin Integration                            │   │
+│  └───────────────┬─────────────────────────────────────────┘   │
+└─────────────────────┼───────────────────────────────────────────┘
+                     │
+         ┌───────────▼────────────┐
+         │  Minecraft Server      │
+         │  Paper 1.20.6 :25565   │
+         │  • 3D Trading Floors   │
+         │  • Visual Simulation   │
+         └────────────────────────┘
+
+Socket Flow: RL → Flask → React → Express → WebSocket → Minecraft
 ```
 
 ## Setup Instructions

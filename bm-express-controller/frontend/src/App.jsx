@@ -54,7 +54,10 @@ function App() {
       console.log('Selected inventories for simulation:', Object.fromEntries(selectedInventories));
       
       const success = startSimulation(selectedInventories);
-      if (!success) {
+      if (success) {
+        // Open localhost:8080 in a new tab
+        window.open('http://localhost:8080', '_blank');
+      } else {
         alert('Failed to start simulation. Please try again.');
       }
     } else if (!isConnected) {

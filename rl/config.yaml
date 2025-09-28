@@ -22,7 +22,7 @@ training:
   model_save_path: "models/trading_agents" # Directory to save models
   log_frequency: 10 # Log summary every N timesteps
   early_stopping_patience: 20 # Stop if no improvement for N generations
-  target_fitness: 100.0 # Target fitness to consider problem solved
+  target_fitness: 250.0 # Target fitness to consider problem solved
 
 server:
   host: "0.0.0.0" # Web server host

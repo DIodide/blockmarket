@@ -67,3 +67,5 @@ bm-world-controller/.idea/misc.xml
 bm-world-controller/target
 .vscode
 *.env
+
+bm-express-controller/frontend/dist

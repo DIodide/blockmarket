@@ -371,34 +371,9 @@ The application is ready for deployment on:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```
-
-MIT License
-
-Copyright (c) 2024 BlockMarket Team
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
 ## Quick Start Guide
 
-For judges and evaluators, here's the fastest way to see BlockMarket in action:
+Here's the fastest way to see BlockMarket in action:
 
 ```bash
 # 1. Quick setup (assuming prerequisites installed)
@@ -410,7 +385,37 @@ cd blockmarket
 ./start-all.sh
 
 # 3. Open browser to http://localhost:5001 to see the AI agents trading!
+
+# 4. To stop all services
+./stop-all.sh
 ```
+
+### What the Scripts Do
+
+**`quick-setup.sh`**:
+
+- Checks for Python, Node.js, and npm
+- Creates Python virtual environment optimized for ARM64
+- Installs all RL dependencies
+- Sets up Express backend with dependencies
+- Builds React frontend for production
+- Creates configuration files
+- Detects Snapdragon/ARM64 architecture for optimization
+
+**`start-all.sh`**:
+
+- Kills any existing services on required ports
+- Starts RL training environment and visualization server
+- Launches Express API backend
+- Starts React frontend development server
+- Monitors all services for crashes
+- Provides easy access to logs
+- Gracefully shuts down on Ctrl+C
+
+**`stop-all.sh`**:
+
+- Stops all running BlockMarket services
+- Cleans up any orphaned processes
 
 ---
 

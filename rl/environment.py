@@ -162,6 +162,9 @@ class TradingEnvironment:
         Returns:
             True if trade request is valid, False otherwise
         """
+        # Allow identity trades (same item for same item) at 1:1 rate
+        # This can be useful for agents to balance inventories or test strategies
+        
         # Check if requester has the item they're offering
         if requester_agent.inventory[item_giving] <= 0:
             return False
@@ -333,7 +336,11 @@ class TradingEnvironment:
         else:
             actual_wanting_amount = actual_giving_amount * target_rate
         
-        if actual_giving_amount <= 0 or actual_wanting_amount <= 0:
+        # Set minimum trade threshold to prevent meaningless micro-trades
+        min_trade_threshold = 0.01  # Minimum 0.01 units for any trade
+        
+        if (actual_giving_amount <= 0 or actual_wanting_amount <= 0 or 
+            actual_giving_amount < min_trade_threshold or actual_wanting_amount < min_trade_threshold):
             return None
         
         # Execute the trade
@@ -358,6 +365,24 @@ class TradingEnvironment:
         
         requester.successful_trades += 1
         target.successful_trades += 1
+        
+        # Record trade in each agent's individual history
+        requester_trade_record = {
+            'partner': target_id,
+            'given': (item_giving, actual_giving_amount),
+            'received': (item_wanting, actual_wanting_amount),
+            'timestep': self.current_timestep
+        }
+        
+        target_trade_record = {
+            'partner': requester_id,
+            'given': (item_wanting, actual_wanting_amount),
+            'received': (item_giving, actual_giving_amount),
+            'timestep': self.current_timestep
+        }
+        
+        requester.trade_history.append(requester_trade_record)
+        target.trade_history.append(target_trade_record)
         
         self.trade_history.append(trade_info)
         
@@ -452,13 +477,18 @@ class TradingEnvironment:
         except ImportError:
             from agent import TradingAgent
         
-        # Create new agent with same desired item as parent
+        # Sometimes mutate the desired item to maintain diversity
+        desired_item = parent.desired_item
+        if np.random.random() < 0.1:  # 10% chance to change desired item
+            desired_item = random.choice(self.items_list)
+        
+        # Create new agent
         offspring = TradingAgent(
             agent_id=f"agent_{len(self.agents)}_{self.current_generation}",
             config=self.config,
             items_list=self.items_list,
-            desired_item=parent.desired_item,
-            initial_inventory=parent.generation_start_inventory.copy()
+            desired_item=desired_item,
+            initial_inventory=None  # Fresh random inventory
         )
         
         # Copy parent's network weights

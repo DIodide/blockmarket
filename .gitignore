@@ -69,6 +69,8 @@ bm-world-controller/target
 *.env
 
 bm-express-controller/frontend/dist
+rl/models/trading_agents/*.pth
+rl/__pycache__
 rl/models/trading_agents/agent_agent_0_final.pth
 rl/models/trading_agents/agent_agent_1_final.pth
 rl/models/trading_agents/agent_agent_2_final.pth
@@ -144,3 +146,4 @@ rl/__pycache__/network.cpython-311.pyc
 rl/__pycache__/training.cpython-311.pyc
 rl/__pycache__/utils.cpython-311.pyc
 rl/__pycache__/web_server.cpython-311.pyc
+rl/models/trading_agents/agent_agent_10_1_final.pth

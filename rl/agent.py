@@ -36,13 +36,13 @@ class TradingAgent:
         # Initialize inventory
         if initial_inventory is None:
             # Random initial inventory
-            self.inventory = {item: np.random.randint(1, 10) for item in items_list}
+            self.inventory = {item: np.random.randint(5, 15) for item in items_list}
         else:
             self.inventory = initial_inventory.copy()
         
         # Initialize trading matrix (how much of item j to accept for 1 of item i)
         self.trading_matrix = np.random.uniform(0.5, 2.0, (self.num_items, self.num_items))
-        # Diagonal should be 1 (trading item for itself)
+        # Diagonal should be 1 (trading item for itself at 1:1 rate)
         np.fill_diagonal(self.trading_matrix, 1.0)
         
         # Neural network for updating trading matrix
@@ -116,10 +116,12 @@ class TradingAgent:
         learning_rate = self.config['learning']['matrix_update_rate']
         self.trading_matrix = (1 - learning_rate) * self.trading_matrix + learning_rate * matrix_update
         
-        # Ensure diagonal is 1 and values are positive
+        # Ensure diagonal is 1
         np.fill_diagonal(self.trading_matrix, 1.0)
         self.trading_matrix = np.maximum(self.trading_matrix, 0.1)  # Minimum rate
         self.trading_matrix = np.minimum(self.trading_matrix, 10.0)  # Maximum rate
+        # Re-ensure diagonal stays 1 after min/max operations
+        np.fill_diagonal(self.trading_matrix, 1.0)
     
     def select_trade_action(self, market_data, other_agents_positions):
         """
@@ -134,6 +136,9 @@ class TradingAgent:
         
         best_trade = None
         best_value = -float('inf')
+        
+        # Get recent trade partners to avoid immediate cycles
+        recent_partners = self._get_recent_trade_partners()
         
         # Evaluate potential trades with each other agent
         for other_agent_id, other_matrix in market_data.items():
@@ -151,15 +156,25 @@ class TradingAgent:
             if distance > self.config['environment']['max_trade_distance']:
                 continue
             
+            # Calculate penalty for recent trading with this agent
+            cycle_penalty = self._calculate_cycle_penalty(other_agent_id, recent_partners)
+            
             # Evaluate each possible item to trade for (D_j - what we want)
             for want_item_idx, want_item in enumerate(self.items_list):
                 if want_item != self.desired_item:
-                    continue  # Only trade for desired item for now
+                    # Check if this item has strategic value for reaching our desired item
+                    strategic_value = self._calculate_strategic_value_for_item(want_item, market_data)
+                    if strategic_value <= 0:
+                        continue  # No strategic value, skip this item    
                 
                 # Find what we can offer that they want (D_i - what we give)
                 for give_item_idx, give_item in enumerate(self.items_list):
                     if self.inventory[give_item] <= 0:
                         continue  # Can't trade what we don't have
+                    
+                    # Check if this trade would create an immediate cycle
+                    if self._would_create_cycle(other_agent_id, give_item, want_item, recent_partners):
+                        continue  # Skip trades that would create cycles
                     
                     # How much they want for our item (their trading matrix)
                     their_rate = other_matrix[give_item_idx, want_item_idx]
@@ -172,16 +187,25 @@ class TradingAgent:
                         self.inventory[give_item] * their_rate  # Max we can get based on what we have
                     )
                     
-                    if max_trade_amount <= 0:
+                    # Set minimum trade threshold to avoid micro-trades
+                    min_trade_threshold = 0.01
+                    if max_trade_amount <= min_trade_threshold:
                         continue
                     
                     # Calculate trade value
                     distance_penalty = 1.0 / (1.0 + distance)
                     trade_value = their_rate * distance_penalty
                     
-                    # Prefer trades that get us more of our desired item
+                    # Apply cycle penalty to discourage repeated trading with same partner
+                    trade_value *= cycle_penalty
+                    
+                    # Apply bonuses based on item type
                     if want_item == self.desired_item:
-                        trade_value *= 2.0  # Bonus for desired item
+                        trade_value *= 2.0  # High bonus for desired item
+                    else:
+                        # For intermediate items, use strategic value as multiplier
+                        strategic_bonus = self._calculate_strategic_value_for_item(want_item, market_data)
+                        trade_value *= (1.0 + strategic_bonus)  # Bonus based on strategic value
                     
                     if trade_value > best_value:
                         best_value = trade_value
@@ -218,7 +242,11 @@ class TradingAgent:
         # NEW: Strategic value based on trading opportunities
         strategic_value = self._calculate_strategic_value(market_data) if market_data else 0.0
         
-        total_reward = primary_reward + improvement_bonus + zero_penalty + trade_bonus + strategic_value
+        # Diversity bonus: small reward for having diverse inventory
+        # diversity_bonus = self._calculate_diversity_bonus()
+        diversity_bonus = 0.0
+
+        total_reward = primary_reward + improvement_bonus + zero_penalty + trade_bonus + strategic_value + diversity_bonus
         return total_reward
     
     def _calculate_strategic_value(self, market_data):
@@ -262,6 +290,185 @@ class TradingAgent:
             strategic_value += item_strategic_value
         
         return strategic_value
+    
+    def _calculate_diversity_bonus(self):
+        """
+        Calculate a small bonus for maintaining diverse inventory.
+        
+        This encourages agents to keep some of all items rather than
+        specializing too heavily, which helps maintain trading opportunities.
+        
+        Returns:
+            Small diversity bonus (typically 0-2 points)
+        """
+        # Count how many different items we have (non-zero quantities)
+        items_held = sum(1 for amount in self.inventory.values() if amount > 0)
+        
+        # Bonus scales with number of different items held
+        max_diversity = len(self.items_list)
+        diversity_ratio = items_held / max_diversity
+        
+        # Small bonus (max 1.0 points) for diversity
+        diversity_bonus = diversity_ratio * 1.0
+        
+        return diversity_bonus
+    
+    def _calculate_strategic_value_for_item(self, item_name, market_data=None):
+        """
+        Calculate strategic value for acquiring a specific item.
+        
+        This evaluates how valuable it would be to acquire this item based on
+        potential trading paths to our desired item.
+        
+        Args:
+            item_name: Name of the item to evaluate
+            market_data: Dictionary of other agents' trading matrices
+            
+        Returns:
+            Strategic value score (0.0 if no value, higher = more valuable)
+        """
+        if not market_data or len(market_data) <= 1:
+            return 0.0
+        
+        # If this IS our desired item, it has maximum direct value
+        if item_name == self.desired_item:
+            return 1.0
+        
+        # Find item indices
+        try:
+            item_idx = self.items_list.index(item_name)
+            desired_item_idx = self.items_list.index(self.desired_item)
+        except ValueError:
+            return 0.0  # Item not in our items list
+        
+        # Calculate best conversion rate from this item to our desired item
+        best_conversion_rate = self._find_best_conversion_path(
+            item_idx, desired_item_idx, market_data, max_hops=3
+        )
+        
+        if best_conversion_rate <= 0:
+            return 0.0
+        
+        # Strategic value factors:
+        # 1. Conversion rate (how much desired item we can get)
+        # 2. Market availability (how many agents want this item)
+        # 3. Distance penalty for indirect paths
+        
+        # Market availability: count how many agents are willing to trade for this item
+        market_demand = 0
+        total_agents = 0
+        
+        for agent_id, other_matrix in market_data.items():
+            if agent_id == self.agent_id:
+                continue
+            total_agents += 1
+            
+            # Check if this agent wants the item (any positive rate in their matrix)
+            for give_item_idx in range(len(self.items_list)):
+                if other_matrix[give_item_idx, item_idx] > 0:
+                    market_demand += 1
+                    break  # This agent wants the item
+        
+        # Market availability factor (0.1 to 1.0)
+        market_factor = (market_demand / max(total_agents, 1)) if total_agents > 0 else 0.1
+        market_factor = max(0.1, min(1.0, market_factor))
+        
+        # Base strategic value
+        strategic_value = best_conversion_rate * market_factor
+        
+        # Apply discount for indirect trading (prefer direct paths)
+        # Estimate path length based on conversion rate quality
+        if best_conversion_rate >= 0.8:
+            path_discount = 1.0  # Likely direct or very good path
+        elif best_conversion_rate >= 0.4:
+            path_discount = 0.7  # Likely 2-hop path
+        else:
+            path_discount = 0.4  # Likely 3+ hop path
+        
+        strategic_value *= path_discount
+        
+        # Threshold: only consider items with meaningful strategic value
+        min_threshold = 0.05
+        return strategic_value if strategic_value >= min_threshold else 0.0
+    
+    def _get_recent_trade_partners(self, lookback_window=3):
+        """
+        Get agents we've recently traded with to avoid immediate cycles.
+        
+        Args:
+            lookback_window: Number of recent trades to consider
+            
+        Returns:
+            Dict mapping agent_id to list of recent trade info
+        """
+        recent_partners = defaultdict(list)
+        
+        # Look at last N trades
+        recent_trades = self.trade_history[-lookback_window:] if self.trade_history else []
+        
+        for trade in recent_trades:
+            partner_id = trade['partner']
+            trade_info = {
+                'gave': trade['given'][0],  # Item we gave
+                'received': trade['received'][0],  # Item we received
+                'timestep': trade['timestep']
+            }
+            recent_partners[partner_id].append(trade_info)
+        
+        return recent_partners
+    
+    def _would_create_cycle(self, target_agent_id, item_giving, item_wanting, recent_partners):
+        """
+        Check if this trade would create an immediate cycle.
+        
+        Args:
+            target_agent_id: ID of agent we want to trade with
+            item_giving: Item we're offering
+            item_wanting: Item we want
+            recent_partners: Recent trade partner information
+            
+        Returns:
+            True if this would create a cycle, False otherwise
+        """
+        if target_agent_id not in recent_partners:
+            return False
+        
+        # Check if we recently traded the reverse of this trade with the same agent
+        for trade_info in recent_partners[target_agent_id]:
+            # Cycle detected if:
+            # - We previously gave them item_wanting
+            # - We previously received item_giving from them
+            # This would mean: A gives X for Y to B, then A gives Y for X to B
+            if (trade_info['gave'] == item_wanting and 
+                trade_info['received'] == item_giving):
+                return True
+        
+        return False
+    
+    def _calculate_cycle_penalty(self, target_agent_id, recent_partners):
+        """
+        Calculate penalty for trading with recently traded partners.
+        
+        Args:
+            target_agent_id: ID of potential trading partner
+            recent_partners: Recent trade partner information
+            
+        Returns:
+            Penalty factor (0.0 to 1.0, where 1.0 = no penalty)
+        """
+        if target_agent_id not in recent_partners:
+            return 1.0  # No penalty for new partners
+        
+        # Calculate penalty based on how recent and frequent trades were
+        trade_count = len(recent_partners[target_agent_id])
+        
+        # More recent and frequent trades = higher penalty
+        if trade_count >= 3:
+            return 0.1  # Heavy penalty for frequent recent trading
+        elif trade_count >= 2:
+            return 0.3  # Moderate penalty
+        else:
+            return 0.7  # Light penalty
     
     def _find_best_conversion_path(self, from_item_idx, to_item_idx, market_data, max_hops=3):
         """
@@ -403,11 +610,16 @@ class TradingAgent:
     
     def reset_for_new_generation(self):
         """Reset agent state for a new generation."""
+        # Reset to fresh random inventory to prevent depletion
+        self.inventory = {item: np.random.randint(5, 20) for item in self.items_list}
         self.generation_start_inventory = self.inventory.copy()
         self.successful_trades = 0
         self.attempted_trades = 0
         self.trade_history = []
         # Keep reward history for learning
+        
+        # Reset position to encourage spatial diversity
+        self.position = np.random.uniform(0, self.config['environment']['world_size'], 2)
     
     def get_fitness(self, market_data=None):
         """Calculate fitness score for genetic algorithm selection."""
@@ -421,6 +633,16 @@ class TradingAgent:
                 for param in self.network.parameters():
                     noise = torch.randn_like(param) * 0.01
                     param.add_(noise)
+        
+        # Mutate trading matrix directly to add diversity
+        if np.random.random() < mutation_rate:
+            matrix_noise = np.random.normal(0, 0.1, self.trading_matrix.shape)
+            self.trading_matrix += matrix_noise
+            # Keep values positive and within bounds
+            self.trading_matrix = np.maximum(self.trading_matrix, 0.1)
+            self.trading_matrix = np.minimum(self.trading_matrix, 10.0)
+            # Ensure diagonal stays 0
+            np.fill_diagonal(self.trading_matrix, 0.0)
         
         # Mutate position slightly
         position_noise = np.random.normal(0, 1.0, 2)

@@ -12,7 +12,7 @@ const useSocket = () => {
     const url = "http://localhost:3001";
     console.log("Master server URL:", url);
     
-    const socketInstance = io(url, {
+    const socketInstance = io("https://d46772db4el.ngrok-free-app/frontend", {
       transports: ["websocket"], // helps avoid long-polling issues with ngrok
     });
 

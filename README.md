@@ -206,8 +206,9 @@ graph TB
 ### **Summary**
 
 This is a **multi-agent reinforcement learning system** that simulates a trading economy where AI agents learn to trade resources optimally. It combines:
+
 - **Genetic Algorithm**: Population-based evolution
-- **Neural Networks**: Individual agent intelligence  
+- **Neural Networks**: Individual agent intelligence
 - **Strategic Value Function**: Multi-hop trading optimization
 - **Spatial Dynamics**: Distance-based trade probability
 
@@ -216,6 +217,7 @@ This is a **multi-agent reinforcement learning system** that simulates a trading
 ### **RL Setup**
 
 #### **1. Environment Layer** (`environment.py`)
+
 **The World Controller** - Manages the entire trading ecosystem:
 
 ```
@@ -233,12 +235,14 @@ This is a **multi-agent reinforcement learning system** that simulates a trading
 ```
 
 **Key Responsibilities:**
+
 - **Agent Initialization**: Creates 50 agents with random positions, inventories, and desired items
 - **Market Data Collection**: Aggregates all trading matrices into public market data
 - **Trade Processing**: Validates, resolves conflicts, and executes trades
 - **Generation Management**: Eliminates bottom 50% of agents, creates offspring from survivors
 
 #### **2. Agent Layer** (`agent.py`)
+
 **Individual Traders** - Each agent is an autonomous trading entity:
 
 ```
@@ -254,12 +258,14 @@ This is a **multi-agent reinforcement learning system** that simulates a trading
 ```
 
 **Agent Capabilities:**
+
 - **Matrix Updates**: Neural network predicts optimal trading rates
 - **Trade Selection**: Chooses best trading partners and items
 - **Strategic Planning**: Evaluates multi-hop trading paths
 - **Learning**: Updates policy based on rewards
 
 #### **3. Neural Network Layer** (`network.py`)
+
 **Agent Brain** - Predicts optimal trading strategies:
 
 ```
@@ -284,7 +290,7 @@ This is a **multi-agent reinforcement learning system** that simulates a trading
    ├─ Each agent updates trading matrix via neural network
    └─ Environment collects all matrices → public market data
 
-2. Trade Request Phase  
+2. Trade Request Phase
    ├─ Each agent analyzes market + own state
    ├─ Selects optimal trade: (target_agent, give_item, want_item, amount)
    └─ Environment collects all requests
@@ -310,7 +316,7 @@ This is a **multi-agent reinforcement learning system** that simulates a trading
    ├─ Keep top 50% of agents (25 survivors)
    └─ Eliminate bottom 50%
 
-3. Reproduction  
+3. Reproduction
    ├─ Create 25 offspring from survivors
    ├─ Apply mutation (10% probability)
    └─ Reset inventories for new generation
@@ -331,15 +337,16 @@ Instead of simple quantity maximization, agents use **multi-hop strategic planni
 ```python
 # Example: Agent wants gold but has wood
 # Direct trade: wood → gold (rate: 0.1) = 0.1 gold per wood
-# Strategic path: wood → iron → gold  
+# Strategic path: wood → iron → gold
 #   wood → iron (rate: 0.5) = 0.5 iron per wood
-#   iron → gold (rate: 0.3) = 0.15 gold per iron  
+#   iron → gold (rate: 0.3) = 0.15 gold per iron
 #   Total: 0.5 × 0.15 = 0.075 gold per wood
 
 # Agent chooses direct trade (0.1 > 0.075)
 ```
 
 **Strategic Features:**
+
 - **Path Finding**: Breadth-first search with dynamic programming
 - **Hop Penalty**: Each intermediate trade reduces efficiency (0.9^hops)
 - **Market Awareness**: Uses real-time trading matrices from all agents
@@ -350,12 +357,14 @@ Instead of simple quantity maximization, agents use **multi-hop strategic planni
 ### **Learning & Evolution**
 
 #### **Individual Learning** (Neural Network)
+
 - **Input**: Current inventory + desired item + market conditions
 - **Processing**: 128-dimensional hidden layers
 - **Output**: 10×10 trading matrix (100 exchange rates)
 - **Training**: Gradient descent on reward signal
 
 #### **Population Learning** (Genetic Algorithm)
+
 - **Selection Pressure**: Only top 50% survive each generation
 - **Mutation**: Random network weight perturbations (10% chance)
 - **Diversity**: Offspring inherit from different high-performing parents
@@ -370,7 +379,7 @@ Instead of simple quantity maximization, agents use **multi-hop strategic planni
 ```python
 # Example trade request
 requester = "agent_5"
-target = "agent_23" 
+target = "agent_23"
 give_item = "wood"      # What I'm offering
 want_item = "iron"      # What I want
 amount = 5              # How much iron I want
@@ -383,7 +392,9 @@ amount = 5              # How much iron I want
 ```
 
 #### **Conflict Resolution**
+
 When multiple agents want to trade with the same target:
+
 - **Distance Priority**: Closer agents have higher probability
 - **Probabilistic Selection**: `P(success) = exp(-distance/scale)`
 - **Fair Competition**: No agent gets guaranteed trades
@@ -395,16 +406,19 @@ When multiple agents want to trade with the same target:
 The system exhibits sophisticated emergent properties:
 
 #### **Market Dynamics**
+
 - **Price Discovery**: Exchange rates converge to supply/demand equilibrium
 - **Specialization**: Agents develop expertise in specific resource chains
 - **Arbitrage**: Agents exploit price differences between markets
 
 #### **Strategic Evolution**
+
 - **Coalition Formation**: Indirect cooperation through beneficial trading
 - **Competitive Adaptation**: Agents counter each other's strategies
 - **Innovation**: Novel trading patterns emerge through mutation
 
 #### **Economic Phenomena**
+
 - **Resource Flows**: Efficient allocation of scarce resources
 - **Market Cycles**: Boom and bust patterns in different commodities
 - **Strategic Depth**: Multi-level planning and counter-planning
@@ -722,7 +736,7 @@ python convert_models.py [OPTIONS]
 
 Options:
   --model-path PATH     Convert specific .pth model file
-  --pattern PATTERN     Glob pattern for finding .pth files (default: *.pth)  
+  --pattern PATTERN     Glob pattern for finding .pth files (default: *.pth)
   --config PATH         Path to configuration file (default: config.yaml)
   --validate-only       Only validate existing ONNX models, do not convert
   --create-example      Create NPU inference example code
@@ -768,7 +782,7 @@ Each ONNX model includes a metadata JSON file with the following information:
 {
   "model_info": {
     "onnx_path": "agent_final.onnx",
-    "model_type": "TradingNetwork", 
+    "model_type": "TradingNetwork",
     "input_dim": 131,
     "output_dim": 25,
     "items_list": ["diamond", "gold", "apple", "emerald", "redstone"],
@@ -785,7 +799,7 @@ Each ONNX model includes a metadata JSON file with the following information:
     "expected_tops": 45,
     "optimization_hints": [
       "Use QNN backend for inference",
-      "Enable NPU execution provider", 
+      "Enable NPU execution provider",
       "Consider FP16 quantization for better performance",
       "Batch size = 1 recommended for real-time inference"
     ]
@@ -819,10 +833,10 @@ def create_npu_session(onnx_path: str):
         }),
         'CPUExecutionProvider'  # Fallback
     ]
-    
+
     session_options = ort.SessionOptions()
     session_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-    
+
     return ort.InferenceSession(onnx_path, sess_options=session_options, providers=providers)
 
 # Run inference
@@ -843,7 +857,7 @@ from onnx_conversion import ONNXConverter
 def save_and_convert_models(env, model_save_path, generation):
     # Save PyTorch models (existing functionality)
     save_generation_models(env, model_save_path, generation)
-    
+
     # Convert to ONNX for NPU deployment
     converter = ONNXConverter()
     converter.convert_all_models()
@@ -858,11 +872,11 @@ class NPUTradingAgent(TradingAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.onnx_session = None
-        
+
     def load_onnx_model(self, onnx_path: str):
         """Load ONNX model for NPU inference."""
         self.onnx_session = create_npu_session(onnx_path)
-    
+
     def update_trading_matrix(self, market_data=None):
         """NPU-accelerated trading matrix update."""
         if self.onnx_session:
@@ -891,16 +905,19 @@ On Qualcomm Snapdragon X Elite with NPU acceleration:
 ##### Common Issues
 
 1. **ONNX Runtime Not Found**
+
    ```bash
    pip install onnxruntime>=1.15.0
    ```
 
 2. **QNN Provider Not Available**
+
    - Ensure you're running on a Snapdragon X Elite device
    - Install Qualcomm AI Stack for Windows/Linux
    - Check that QnnHtp.dll is available in PATH
 
 3. **Model Validation Failed**
+
    - Check PyTorch and ONNX versions are compatible
    - Verify input tensor shapes match expected dimensions
    - Try reducing numerical tolerance for validation
@@ -931,8 +948,8 @@ converter = ONNXConverter()
 
 # Custom export with different opset version
 converter.convert_to_onnx(
-    model, 
-    "output.onnx", 
+    model,
+    "output.onnx",
     opset_version=13,  # Use newer opset
     dynamic_axes={'state_vector': {0: 'batch_size', 1: 'sequence_length'}}
 )
@@ -946,7 +963,7 @@ import onnxruntime.quantization as quantization
 # Quantize model for better NPU performance
 quantization.quantize_dynamic(
     "model.onnx",
-    "model_quantized.onnx", 
+    "model_quantized.onnx",
     weight_type=quantization.QuantType.QUInt8
 )
 ```
@@ -967,7 +984,6 @@ When adding new neural network architectures to the BlockMarket system:
 - [Qualcomm AI Stack](https://developer.qualcomm.com/software/qualcomm-ai-stack)
 - [PyTorch ONNX Export](https://pytorch.org/docs/stable/onnx.html)
 - [BlockMarket Trading System](../README.md)
-
 
 ## Testing
 
@@ -1072,8 +1088,8 @@ cd blockmarket
 ./quick-setup.sh  # Automated setup script
 
 # 2. Launch everything
-On Mac: 
-chmod +x start-all.sh 
+On Mac:
+chmod +x start-all.sh
 ./start-all.sh
 On Windows:
 .\start-all.bat

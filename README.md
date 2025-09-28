@@ -172,6 +172,214 @@ graph TB
 - **Genetic Evolution**: Population-based training with genetic algorithms ensures continuous improvement of trading strategies
 - **Privacy-First Design**: All AI computations run locally on the Snapdragon-powered device, ensuring complete data privacy
 
+## Overview of RL Pipeline
+
+### **Summary**
+
+This is a **multi-agent reinforcement learning system** that simulates a trading economy where AI agents learn to trade resources optimally. It combines:
+- **Genetic Algorithm**: Population-based evolution
+- **Neural Networks**: Individual agent intelligence  
+- **Strategic Value Function**: Multi-hop trading optimization
+- **Spatial Dynamics**: Distance-based trade probability
+
+---
+
+### **RL Setup**
+
+#### **1. Environment Layer** (`environment.py`)
+**The World Controller** - Manages the entire trading ecosystem:
+
+```
+┌─────────────────────────────────────────┐
+│           TradingEnvironment            │
+├─────────────────────────────────────────┤
+│ • 50 agents in 100x100 2D world        │
+│ • 10 items: wood, stone, iron, gold,   │
+│   food, water, coal, oil, copper,      │
+│   silver                                │
+│ • Market data aggregation              │
+│ • Trade conflict resolution            │
+│ • Genetic algorithm selection          │
+└─────────────────────────────────────────┘
+```
+
+**Key Responsibilities:**
+- **Agent Initialization**: Creates 50 agents with random positions, inventories, and desired items
+- **Market Data Collection**: Aggregates all trading matrices into public market data
+- **Trade Processing**: Validates, resolves conflicts, and executes trades
+- **Generation Management**: Eliminates bottom 50% of agents, creates offspring from survivors
+
+#### **2. Agent Layer** (`agent.py`)
+**Individual Traders** - Each agent is an autonomous trading entity:
+
+```
+┌─────────────────────────────────────────┐
+│             TradingAgent                │
+├─────────────────────────────────────────┤
+│ • Inventory: {item: quantity}           │
+│ • Desired item: target to maximize     │
+│ • Trading matrix: 10x10 exchange rates │
+│ • Neural network: Policy predictor     │
+│ • Strategic value function             │
+└─────────────────────────────────────────┘
+```
+
+**Agent Capabilities:**
+- **Matrix Updates**: Neural network predicts optimal trading rates
+- **Trade Selection**: Chooses best trading partners and items
+- **Strategic Planning**: Evaluates multi-hop trading paths
+- **Learning**: Updates policy based on rewards
+
+#### **3. Neural Network Layer** (`network.py`)
+**Agent Brain** - Predicts optimal trading strategies:
+
+```
+┌─────────────────────────────────────────┐
+│           TradingNetwork                │
+├─────────────────────────────────────────┤
+│ Input: [inventory + desired + market]   │
+│ Hidden: 128-dim fully connected layers │
+│ Output: 10x10 trading matrix           │
+│ Constraint: Diagonal = 0 (no identity) │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### **Core Processes**
+
+#### **Timestep Flow** (Repeated 100 times per generation)
+
+```
+1. Matrix Update Phase
+   ├─ Each agent updates trading matrix via neural network
+   └─ Environment collects all matrices → public market data
+
+2. Trade Request Phase  
+   ├─ Each agent analyzes market + own state
+   ├─ Selects optimal trade: (target_agent, give_item, want_item, amount)
+   └─ Environment collects all requests
+
+3. Trade Resolution Phase
+   ├─ Validate requests (sufficient inventory)
+   ├─ Resolve conflicts (distance-based probability)
+   └─ Execute successful trades
+
+4. Learning Phase
+   ├─ Calculate rewards (inventory + strategic value)
+   └─ Update neural network policies
+```
+
+#### **Generation Flow** (Up to 100 generations)
+
+```
+1. Fitness Evaluation
+   ├─ Calculate each agent's performance
+   └─ Rank agents by fitness score
+
+2. Selection
+   ├─ Keep top 50% of agents (25 survivors)
+   └─ Eliminate bottom 50%
+
+3. Reproduction  
+   ├─ Create 25 offspring from survivors
+   ├─ Apply mutation (10% probability)
+   └─ Reset inventories for new generation
+
+4. Convergence Check
+   ├─ Early stopping if no improvement for 20 generations
+   └─ Continue or terminate based on progress
+```
+
+---
+
+### **Intelligence Systems**
+
+#### **Strategic Value Function** - The Key Innovation
+
+Instead of simple quantity maximization, agents use **multi-hop strategic planning**:
+
+```python
+# Example: Agent wants gold but has wood
+# Direct trade: wood → gold (rate: 0.1) = 0.1 gold per wood
+# Strategic path: wood → iron → gold  
+#   wood → iron (rate: 0.5) = 0.5 iron per wood
+#   iron → gold (rate: 0.3) = 0.15 gold per iron  
+#   Total: 0.5 × 0.15 = 0.075 gold per wood
+
+# Agent chooses direct trade (0.1 > 0.075)
+```
+
+**Strategic Features:**
+- **Path Finding**: Breadth-first search with dynamic programming
+- **Hop Penalty**: Each intermediate trade reduces efficiency (0.9^hops)
+- **Market Awareness**: Uses real-time trading matrices from all agents
+- **Opportunity Cost**: Balances immediate vs. strategic gains
+
+---
+
+### **Learning & Evolution**
+
+#### **Individual Learning** (Neural Network)
+- **Input**: Current inventory + desired item + market conditions
+- **Processing**: 128-dimensional hidden layers
+- **Output**: 10×10 trading matrix (100 exchange rates)
+- **Training**: Gradient descent on reward signal
+
+#### **Population Learning** (Genetic Algorithm)
+- **Selection Pressure**: Only top 50% survive each generation
+- **Mutation**: Random network weight perturbations (10% chance)
+- **Diversity**: Offspring inherit from different high-performing parents
+- **Convergence**: Early stopping prevents overfitting
+
+---
+
+### **Trade Mechanics**
+
+#### **Trade Request Format**: `(agent_id, target_id, give_item, want_item, amount)`
+
+```python
+# Example trade request
+requester = "agent_5"
+target = "agent_23" 
+give_item = "wood"      # What I'm offering
+want_item = "iron"      # What I want
+amount = 5              # How much iron I want
+
+# Validation checks:
+# 1. Does agent_5 have enough wood?
+# 2. Will agent_23 accept this rate?
+# 3. Is the trade distance feasible?
+# 4. Are the items different? (no identity trades)
+```
+
+#### **Conflict Resolution**
+When multiple agents want to trade with the same target:
+- **Distance Priority**: Closer agents have higher probability
+- **Probabilistic Selection**: `P(success) = exp(-distance/scale)`
+- **Fair Competition**: No agent gets guaranteed trades
+
+---
+
+### **Emergent Behaviors**
+
+The system exhibits sophisticated emergent properties:
+
+#### **Market Dynamics**
+- **Price Discovery**: Exchange rates converge to supply/demand equilibrium
+- **Specialization**: Agents develop expertise in specific resource chains
+- **Arbitrage**: Agents exploit price differences between markets
+
+#### **Strategic Evolution**
+- **Coalition Formation**: Indirect cooperation through beneficial trading
+- **Competitive Adaptation**: Agents counter each other's strategies
+- **Innovation**: Novel trading patterns emerge through mutation
+
+#### **Economic Phenomena**
+- **Resource Flows**: Efficient allocation of scarce resources
+- **Market Cycles**: Boom and bust patterns in different commodities
+- **Strategic Depth**: Multi-level planning and counter-planning
+
 ## System Architecture
 
 ![whiteboarding](whiteboard.jpg)

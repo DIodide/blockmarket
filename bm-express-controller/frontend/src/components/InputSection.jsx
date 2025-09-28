@@ -22,7 +22,7 @@ const InputSection = ({
           min="10"
           max="200"
         />
-        <span className="input-hint">Note: only 10x10 grid with 5 agents is supported right now</span>
+        <span className="input-hint">Note: only 10x10 grid with 10 agents is supported right now</span>
       </div>
       
       {!showGrid && (

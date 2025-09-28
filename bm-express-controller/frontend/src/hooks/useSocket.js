@@ -9,10 +9,10 @@ const useSocket = () => {
   const [inventories, setInventories] = useAtom(inventoriesAtom);
 
   useEffect(() => {
-    const url = "http://localhost:3001";
+    const url = "http://localhost:3001/frontend";
     console.log("Master server URL:", url);
     
-    const socketInstance = io("https://d46772db4el.ngrok-free-app/frontend", {
+    const socketInstance = io(url, {
       transports: ["websocket"], // helps avoid long-polling issues with ngrok
     });
 

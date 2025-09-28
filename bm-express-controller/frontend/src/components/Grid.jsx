@@ -36,7 +36,7 @@ const Grid = ({
 
   return (
     <div className="grid-section">
-      <h3>Select 5 cells for agent locations ({selectedCells.size} selected)</h3>
+      <h3>Select 10 cells for agent locations ({selectedCells.size} selected)</h3>
       <div className="grid-with-panel">
         <div 
           className="grid-container" 

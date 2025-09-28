@@ -30,8 +30,9 @@ graph TB
         subgraph "RL Monorepo (Python)"
             ENV[Trading Environment<br/>environment.py<br/>- 100+ Agents<br/>- Spatial Positions]
             AGENT[Trading Agents<br/>agent.py<br/>- Neural Networks<br/>- Trading Matrices]
-            TRAIN[Training Loop<br/>training.py<br/>- Genetic Algorithm<br/>- Fitness Evaluation]
-            FLASK[Flask Server<br/>web_server.py<br/>Port: 5001<br/>- Real-time Metrics<br/>- WebSocket Streaming]
+            TRAIN[Training Loop<br/>training.py<br/>- Genetic Algorithm<br/>- Fitness Evaluation<br/>- LLM Summary Triggers]
+            FLASK[Flask Server<br/>web_server.py<br/>Port: 5001<br/>- Real-time Metrics<br/>- WebSocket Streaming<br/>- AI Analysis Panel]
+            LLM[LLM Summarizer<br/>llm_summarizer.py<br/>- Imagine SDK Integration<br/>- Market Analysis<br/>- Trading Insights]
         end
 
         subgraph "Express Controller Monorepo"
@@ -68,16 +69,19 @@ graph TB
     AGENT -->|Performance<br/>Metrics| TRAIN
     TRAIN -->|New<br/>Generation| ENV
     ENV -->|Environment<br/>Data| FLASK
+    TRAIN -->|Trading Data<br/>Every Half Gen| LLM
+    LLM -->|AI Summaries| FLASK
 
     %% Express Internal Flow
     EXPRESS <-->|API Calls| ROUTES
     REACT <-->|State<br/>Updates| HOOKS
     HOOKS <-->|Global<br/>State| ATOMS
 
-    %% Socket Tunneling
-    FLASK ===>|WebSocket<br/>Stream| REACT
+    %% Socket Tunneling & Data Flow
+    FLASK ===>|WebSocket<br/>Stream + AI Analysis| REACT
     REACT ===>|Commands| EXPRESS
     EXPRESS ===>|Relay| WS_SERVER
+    LLM -.->|AI Analysis<br/>API Endpoints| REACT
 
     %% Minecraft Integration
     WS_SERVER <-->|WebSocket<br/>Protocol| PLUGIN
@@ -98,7 +102,7 @@ graph TB
     classDef mcStyle fill:#95d600,stroke:#5c7cfa,stroke-width:2px
 
     class NN,TM npuStyle
-    class ENV,AGENT,TRAIN,FLASK rlStyle
+    class ENV,AGENT,TRAIN,FLASK,LLM rlStyle
     class EXPRESS,ROUTES,REACT,HOOKS,ATOMS expressStyle
     class WS_SERVER,FLOOR_BUILDER,CMD_EXEC,MC,PLUGIN mcStyle
 ```
@@ -111,8 +115,9 @@ graph TB
 
    - `environment.py`: Manages 100+ trading agents with spatial positions
    - `agent.py`: Neural networks leveraging Snapdragon NPU for 45 TOPS inference
-   - `training.py`: Genetic algorithm implementation for population evolution
-   - `web_server.py`: Flask server streaming real-time metrics via WebSocket
+   - `training.py`: Genetic algorithm implementation for population evolution with LLM triggers
+   - `web_server.py`: Flask server streaming real-time metrics and AI analysis via WebSocket
+   - `llm_summarizer.py`: Imagine SDK integration for intelligent market analysis and insights
 
    **Express Controller Monorepo (JavaScript)**:
 
@@ -127,15 +132,19 @@ graph TB
    - Trading floor builder creating 3D structures in Minecraft
    - Safe command execution with configurable security
 
-2. **Socket Tunneling Flow**:
+2. **Socket Tunneling & AI Analysis Flow**:
 
    ```
    RL Environment → Flask WebSocket → React Frontend
-                                          ↓
+                         ↓              ↑
+   LLM Summarizer → AI Analysis ────────┘
+                         ↓
    Minecraft Server ← Plugin ← WebSocket ← Express API
    ```
 
-   - Flask streams environment updates to React dashboard
+   - Flask streams environment updates and AI analysis to React dashboard
+   - LLM generates intelligent summaries every half generation (50 timesteps)
+   - React displays real-time trading insights powered by Imagine SDK
    - React sends commands through Express API
    - Express relays commands to World Controller WebSocket
    - Plugin executes commands in Minecraft world
@@ -157,6 +166,7 @@ graph TB
 ### Key Innovation Points:
 
 - **NPU-Optimized RL Training**: Neural networks are specifically optimized to leverage Snapdragon X Elite's NPU, achieving up to 45 TOPS of AI performance for real-time agent decision-making
+- **AI-Powered Market Analysis**: Real-time LLM summaries using Imagine SDK (Llama-3.1-8B) provide intelligent insights on trading patterns, agent performance, and market dynamics every half generation
 - **Spatial Trading Dynamics**: Agents exist in a 2D world where distance affects trading probability, creating realistic market dynamics
 - **Minecraft Visualization**: Real-world trading scenarios are brought to life through interactive Minecraft environments, making complex AI behaviors visually comprehensible
 - **Genetic Evolution**: Population-based training with genetic algorithms ensures continuous improvement of trading strategies
@@ -182,7 +192,8 @@ graph TB
 │  │  • Trading Environment (100+ agents)     :5001          │    │
 │  │  • Flask WebSocket Server ─────────────────┐            │    │
 │  │  • Genetic Algorithm Evolution             │            │    │
-│  └────────────────────────────────────────────┘            │    │
+│  │  • LLM Summarizer (Imagine SDK) ───────────┘            │    │
+│  └────────────────────────────────────────────────────────┘    │
 │                                                            │    │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │        Express Controller Monorepo (JS)                 │    │
@@ -210,6 +221,7 @@ graph TB
          └────────────────────────┘
 
 Socket Flow: RL → Flask → React → Express → WebSocket → Minecraft
+AI Analysis: LLM Summarizer → Flask Dashboard (Every Half Generation)
 ```
 
 ## Setup Instructions
@@ -417,12 +429,48 @@ cd rl/
 python benchmark_npu.py --iterations 1000
 ```
 
+### LLM Integration Testing
+
+```bash
+# Test LLM summarization functionality
+python test_llm_integration.py
+
+# Test endpoints manually
+curl http://localhost:5001/llm_summary
+curl http://localhost:5001/llm_summaries
+```
+
+## AI-Powered Market Analysis
+
+BlockMarket features cutting-edge LLM integration using the **Imagine SDK** for real-time market intelligence:
+
+### 🤖 **Intelligent Summarization**
+
+- **Model**: Llama-3.1-8B via Imagine SDK
+- **Frequency**: Automated summaries every half generation (50 timesteps)
+- **Analysis**: Trading patterns, agent performance, market dynamics, strategic insights
+
+### 📊 **Market Intelligence Features**
+
+- **Performance Metrics**: Fitness distributions, success rates, trend analysis
+- **Trading Patterns**: Popular item exchanges, market liquidity assessment
+- **Agent Insights**: Top performer analysis, specialization tracking
+- **Strategic Recommendations**: AI-driven optimization suggestions
+
+### ⚡ **Technical Implementation**
+
+- **Asynchronous Processing**: Non-blocking summary generation
+- **API Integration**: Dedicated endpoints (`/llm_summary`, `/llm_summaries`)
+- **Error Handling**: Graceful fallbacks for network issues
+- **Environment Configuration**: Automatic API key management
+
 ## Additional Notes
 
 ### Privacy and Security
 
-- All AI computations run locally on the Snapdragon device
-- No training data or model weights are sent to external servers
+- All RL training runs locally on the Snapdragon device
+- LLM analysis uses secure HTTPS connection to Imagine SDK
+- No training data or model weights stored externally
 - WebSocket connections are localhost-only by default
 - Minecraft server runs in offline mode for complete isolation
 
@@ -497,4 +545,4 @@ cd blockmarket
 
 ---
 
-**Powered by Qualcomm Snapdragon** - Experience the future of on-device AI with 45 TOPS of performance
+**Powered by Qualcomm Snapdragon & Imagine SDK** - Experience the future of on-device AI with 45 TOPS of performance plus intelligent LLM analysis

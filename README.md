@@ -2,7 +2,8 @@
 
 **Track 3: RL Agent Arena Submission**
 
-![alt text](flasktease.png)
+![minecraft picture](minecrafttease.png)
+![flask dashboard picture](flasktease.png)
 
 An innovative reinforcement learning platform that trains intelligent trading agents in a spatially-aware bartering economy, optimized for Qualcomm Snapdragon X Elite NPU acceleration and beautifully visualized through Minecraft integration.
 
@@ -317,9 +318,8 @@ Connect to the WebSocket server to control the environment:
 Our implementation leverages Snapdragon X Elite's NPU for:
 
 1. **Neural Network Inference**: Agent decision-making runs at 45 TOPS
-2. **Parallel Processing**: Multiple agents computed simultaneously
-3. **Energy Efficiency**: 70% power reduction compared to CPU-only execution
-4. **Low Latency**: Sub-millisecond inference for real-time trading decisions
+
+Some more optimizations exist that are yet to be used.
 
 ## Testing
 

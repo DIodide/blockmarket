@@ -34,15 +34,31 @@ mineFlayerNS.on("connection", (socket) => {
 
 modelNS.on("connection", (socket) => {
     console.log("Model client connected");
-})
-modelNS.on("trade", (data) => {
-    console.log("hub received trade data:", data);
-    mineFlayerNS.emit("trade", data);
-
+    
+    socket.on("trade", (data) => {
+        console.log("hub received trade data:", data);
+        mineFlayerNS.emit("trade", data);
+    });
+    
+    socket.on("simulation_started", (data) => {
+        console.log("Simulation started:", data);
+    });
+    
+    socket.on("simulation_stopped", (data) => {
+        console.log("Simulation stopped:", data);
+    });
+    
+    socket.on("simulation_error", (data) => {
+        console.log("Simulation error:", data);
+    });
+    
+    socket.on("disconnect", () => {
+        console.log("Model client disconnected");
+    });
 })
 const port = process.env.PORT || 3001;
 server.listen(port, "0.0.0.0", () => {
     console.log(`BlockMarket server running on port ${port}`);
     console.log(`Frontend namespace: /frontend`);
-    console.log(`MindFlayer namespace: /mindFlayer`);
+    console.log(`MineFlayer namespace: /mineflayer`);
 })

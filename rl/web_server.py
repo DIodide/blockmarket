@@ -127,6 +127,10 @@ HTML_TEMPLATE = """
                     <span class="label">Recent Trades:</span>
                     <span id="recent-trades">0</span>
                 </div>
+                <div class="status-item">
+                    <span class="label">Socket:</span>
+                    <span id="socket-status">Disconnected</span>
+                </div>
             </div>
         </header>
 
@@ -470,17 +474,19 @@ class TradingVisualization {
     
     async fetchData() {
         try {
-            const [stateResponse, agentsResponse, tradesResponse, statsResponse] = await Promise.all([
+            const [stateResponse, agentsResponse, tradesResponse, statsResponse, socketResponse] = await Promise.all([
                 fetch('/state'),
                 fetch('/agents'),
                 fetch('/trades'),
-                fetch('/statistics')
+                fetch('/statistics'),
+                fetch('/socket_status').catch(() => ({ json: () => ({ connected: false }) }))
             ]);
             
             const state = await stateResponse.json();
             this.agents = await agentsResponse.json();
             this.trades = await tradesResponse.json();
             this.statistics = await statsResponse.json();
+            this.socketStatus = await socketResponse.json();
             
             this.updateUI(state);
         } catch (error) {
@@ -494,6 +500,16 @@ class TradingVisualization {
         document.getElementById('timestep').textContent = state.timestep || 0;
         document.getElementById('total-agents').textContent = state.total_agents || 0;
         document.getElementById('recent-trades').textContent = state.recent_trades || 0;
+        
+        // Update socket status
+        const socketStatusElement = document.getElementById('socket-status');
+        if (this.socketStatus && this.socketStatus.connected) {
+            socketStatusElement.textContent = 'Connected';
+            socketStatusElement.style.color = '#48bb78';
+        } else {
+            socketStatusElement.textContent = 'Disconnected';
+            socketStatusElement.style.color = '#e53e3e';
+        }
         
         // Update metrics
         document.getElementById('best-fitness').textContent = (state.best_fitness || 0).toFixed(2);

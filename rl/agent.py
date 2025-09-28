@@ -641,8 +641,8 @@ class TradingAgent:
             # Keep values positive and within bounds
             self.trading_matrix = np.maximum(self.trading_matrix, 0.1)
             self.trading_matrix = np.minimum(self.trading_matrix, 10.0)
-            # Ensure diagonal stays 0
-            np.fill_diagonal(self.trading_matrix, 0.0)
+            # Ensure diagonal stays 1
+            np.fill_diagonal(self.trading_matrix, 1.0)
         
         # Mutate position slightly
         position_noise = np.random.normal(0, 1.0, 2)

@@ -1,6 +1,12 @@
+# Core ML/AI dependencies
 torch>=1.9.0
 numpy>=1.21.0
-pyyaml>=5.4.0
-flask>=2.0.0
-matplotlib>=3.4.0
-scipy>=1.7.0
+
+# Web framework
+Flask>=2.0.0
+
+# Socket.IO client
+python-socketio[client]>=5.0.0
+
+# Configuration and utilities
+PyYAML>=6.0

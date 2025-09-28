@@ -137,15 +137,21 @@ class TradingEnvironment:
             agent.attempted_trades += 1
             trade_action = agent.select_trade_action(self.market_data, self.agent_positions)
             
+            logger.debug(f"Agent {agent.agent_id} trade action: {trade_action}")
+            
             if trade_action is not None:
                 target_agent_id, item_giving, item_wanting, amount_wanting = trade_action
                 
                 # Validate trade request
                 if self._validate_trade_request(agent, target_agent_id, item_giving, item_wanting, amount_wanting):
                     trade_requests.append((agent.agent_id, target_agent_id, item_giving, item_wanting, amount_wanting))
+                    logger.debug(f"Valid trade request: {agent.agent_id} -> {target_agent_id}, {item_giving} for {item_wanting}")
                 else:
                     logger.debug(f"Invalid trade request from {agent.agent_id}: insufficient resources")
+            else:
+                logger.debug(f"Agent {agent.agent_id} selected no trade action")
         
+        logger.info(f"Collected {len(trade_requests)} valid trade requests from {len(self.agents)} agents")
         return trade_requests
     
     def _validate_trade_request(self, requester_agent, target_agent_id, item_giving, item_wanting, amount_wanting):

@@ -2,7 +2,20 @@
 
 **Track 3: RL Agent Arena Submission**
 
+![minecraft picture](minecrafttease.png)
+![flask dashboard picture](flasktease.png)
+
 An innovative reinforcement learning platform that trains intelligent trading agents in a spatially-aware bartering economy, optimized for Qualcomm Snapdragon X Elite NPU acceleration and beautifully visualized through Minecraft integration.
+
+BlockMarket is a cutting-edge reinforcement learning environment where neural network agents learn how to maximize the amount of trades in a simulated trading floor (Kudos to the early 2000s floor traders in places like the New York Stock Exhcange (NYSE)). Our platform leverages the power of Qualcomm Snapdragon's dedicated NPU and powerful CPU to run complex neural networks locally, ensuring real-time decision-making with complete privacy preservation.
+
+## Team Members
+
+- **Ibraheem Amin** - ia8920@princeton.edu (<ibraheem.amin2@gmail.com>) (Team Lead) ([DIodide](https://github.com/DIodide))
+- **Richard Wang** - rw8166@princeton.edu
+- **Cole Ramer** - cr0058@princeton.edu
+- **Khang Tran** - kt3119@princeton.edu
+- **John Wu** - jw7893@princeton.edu
 
 ## System Architecture Overview
 
@@ -80,7 +93,7 @@ graph TB
 
 2. **Data Flow**:
 
-   - Agents observe market state → NPU processes observations → Neural networks output trading decisions
+   - Agents observe initial market state → NPU processes observations → Neural networks output trading decisions
    - Trading matrices are updated every timestep based on market conditions
    - Successful trades increase agent fitness, driving evolution
 
@@ -95,10 +108,6 @@ graph TB
    - Express API (port 5000) provides RESTful access to trading data
    - All processing happens locally on the Snapdragon device for privacy
 
-## Application Description
-
-BlockMarket is a cutting-edge reinforcement learning environment where AI agents learn optimal trading strategies in a decentralized marketplace. Our platform leverages the power of Qualcomm Snapdragon X Elite's dedicated NPU to run complex neural networks locally, ensuring real-time decision-making with complete privacy preservation.
-
 ### Key Innovation Points:
 
 - **NPU-Optimized RL Training**: Neural networks are specifically optimized to leverage Snapdragon X Elite's NPU, achieving up to 45 TOPS of AI performance for real-time agent decision-making
@@ -106,14 +115,6 @@ BlockMarket is a cutting-edge reinforcement learning environment where AI agents
 - **Minecraft Visualization**: Real-world trading scenarios are brought to life through interactive Minecraft environments, making complex AI behaviors visually comprehensible
 - **Genetic Evolution**: Population-based training with genetic algorithms ensures continuous improvement of trading strategies
 - **Privacy-First Design**: All AI computations run locally on the Snapdragon-powered device, ensuring complete data privacy
-
-## Team Members
-
-- **Ibraheem Amin** - ia8920@princeton.edu (ibraheem.amin2@gmail.com) (Team Lead)
-- **Richard Wang**
-- **Cole Ramer**
-- **Khang Tran**
-- **John Wu**
 
 ## System Architecture
 
@@ -149,7 +150,7 @@ BlockMarket is a cutting-edge reinforcement learning environment where AI agents
   - Python 3.9+ (ARM64 optimized)
   - Node.js 18+ (ARM64 build)
   - Java 17+ (ARM64 JDK)
-  - Minecraft Server (Paper/Spigot 1.20+)
+  - Minecraft Server (Paper/Spigot 1.20+) (can run locally)
 
 ### 1. Clone the Repository
 
@@ -158,15 +159,7 @@ git clone https://github.com/yourusername/blockmarket.git
 cd blockmarket
 ```
 
-### 2. Install Qualcomm AI Stack (for NPU acceleration)
-
-```bash
-# Download and install Qualcomm AI Engine Direct SDK
-wget https://developer.qualcomm.com/downloads/ai-engine-direct-sdk
-# Follow installation instructions for ARM64 architecture
-```
-
-### 3. Set Up Python Environment (RL Components)
+### 2. Set Up Python Environment (RL Components)
 
 ```bash
 cd rl/
@@ -183,7 +176,7 @@ pip install qai-hub  # Qualcomm AI Hub for NPU optimization
 python configure_npu.py
 ```
 
-### 4. Build Minecraft World Controller Plugin
+### 3. Build BlockMarket Controller Plugin
 
 ```bash
 cd ../bm-world-controller/
@@ -197,6 +190,16 @@ mvn clean package
 # Copy to Minecraft plugins folder
 cp target/bm-world-controller-0.1-SNAPSHOT.jar /path/to/minecraft/plugins/
 ```
+
+Do follow a tutorial for locally hosting a minecraft server setup.
+The specific configuration we used is Paper 1.20.6, you can follow a guide
+to set up a minecraft server here. https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server#Windows_instructions
+
+Simply run a startup script off of that link for Windows. Then update
+the path and server url in the express service (we would set a .env if we had some more time.)
+
+Our thing is a bit three pronged so its a little more setup, but all of it
+can theoretically run locally. Minecraft Servers are very single threaded CPU intensive.
 
 ### 5. Set Up Express Controller (Backend)
 
@@ -315,9 +318,8 @@ Connect to the WebSocket server to control the environment:
 Our implementation leverages Snapdragon X Elite's NPU for:
 
 1. **Neural Network Inference**: Agent decision-making runs at 45 TOPS
-2. **Parallel Processing**: Multiple agents computed simultaneously
-3. **Energy Efficiency**: 70% power reduction compared to CPU-only execution
-4. **Low Latency**: Sub-millisecond inference for real-time trading decisions
+
+Some more optimizations exist that are yet to be used.
 
 ## Testing
 
@@ -354,18 +356,22 @@ python benchmark_npu.py --iterations 1000
 
 ### Deployment
 
-The application is ready for deployment on:
+To make this application ready for release as follows we would need:
 
 - Windows Store (ARM64 package)
 - GitHub Releases (cross-platform)
-- Qualcomm AI Hub (model repository)
+
+To wrap our express (entry) service in electron, allow it to render
+our vite app as a webview, and containerize our minecraft server in docker.
+It's a bit out of scope as an RL tool, but we plan to "electronize"
+our application asap.
 
 ### References
 
+RL REFERENCE: cart-pole-ppo for our RL.
+
 1. Qualcomm Snapdragon X Elite Documentation
-2. Reinforcement Learning: An Introduction (Sutton & Barto)
-3. Multi-Agent Systems: Algorithmic, Game-Theoretic, and Logical Foundations
-4. Minecraft Plugin Development Guide
+2. Minecraft Plugin Development Guide
 
 ## License
 
@@ -419,4 +425,4 @@ cd blockmarket
 
 ---
 
-**Powered by Qualcomm Snapdragon X Elite NPU** - Experience the future of on-device AI with 45 TOPS of performance
+**Powered by Qualcomm Snapdragon** - Experience the future of on-device AI with 45 TOPS of performance

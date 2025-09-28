@@ -9,7 +9,7 @@ const useSocket = () => {
   const [inventories, setInventories] = useAtom(inventoriesAtom);
 
   useEffect(() => {
-    const url = import.meta.env.VITE_MASTER_SERVER_URL;
+    const url = "http://localhost:3001";
     console.log("Master server URL:", url);
     
     const socketInstance = io(url, {

@@ -36,14 +36,13 @@ class TradingAgent:
         # Initialize inventory
         if initial_inventory is None:
             # Random initial inventory
-            self.inventory = {item: np.random.randint(1, 10) for item in items_list}
+            self.inventory = {item: np.random.randint(5, 20) for item in items_list}
         else:
             self.inventory = initial_inventory.copy()
         
         # Initialize trading matrix (how much of item j to accept for 1 of item i)
-        self.trading_matrix = np.random.uniform(0.5, 2.0, (self.num_items, self.num_items))
-        # Diagonal should be 1 (trading item for itself)
-        np.fill_diagonal(self.trading_matrix, 1.0)
+        # Create symmetric matrix where trading_matrix[j,i] = 1/trading_matrix[i,j]
+        self.trading_matrix = self._initialize_symmetric_trading_matrix()
         
         # Neural network for updating trading matrix
         self.network = TradingNetwork(config, self.num_items)
@@ -58,6 +57,58 @@ class TradingAgent:
         self.generation_start_inventory = self.inventory.copy()
         self.successful_trades = 0
         self.attempted_trades = 0
+    
+    def _initialize_symmetric_trading_matrix(self):
+        """
+        Initialize a symmetric trading matrix where trading_matrix[j,i] = 1/trading_matrix[i,j].
+        This ensures economic consistency: if I trade 1 A for 2 B, then 1 B trades for 0.5 A.
+        """
+        matrix = np.zeros((self.num_items, self.num_items))
+        
+        # Fill upper triangular part (including diagonal)
+        for i in range(self.num_items):
+            for j in range(i, self.num_items):
+                if i == j:
+                    # Diagonal: trading item for itself
+                    matrix[i, j] = 1.0
+                else:
+                    # Random rate for upper triangle
+                    rate = np.random.uniform(0.5, 2.0)
+                    matrix[i, j] = rate
+                    # Set lower triangle as inverse
+                    matrix[j, i] = 1.0 / rate
+        
+        # Explicit diagonal constraint as final safeguard
+        return self._enforce_diagonal_constraint(matrix)
+    
+    def _enforce_symmetric_property(self, matrix):
+        """
+        Enforce the symmetric inverse property on a trading matrix.
+        Updates the lower triangle to be the inverse of the upper triangle.
+        """
+        for i in range(self.num_items):
+            for j in range(i + 1, self.num_items):
+                # Ensure lower triangle is inverse of upper triangle
+                if matrix[i, j] > 0:
+                    matrix[j, i] = 1.0 / matrix[i, j]
+                else:
+                    # If upper is zero, set both to a default rate
+                    matrix[i, j] = 1.0
+                    matrix[j, i] = 1.0
+            
+            # Ensure diagonal is 1.0
+            matrix[i, i] = 1.0
+        
+        # Final explicit diagonal constraint
+        return self._enforce_diagonal_constraint(matrix)
+    
+    def _enforce_diagonal_constraint(self, matrix):
+        """
+        Explicitly ensure diagonal elements are always 1.0.
+        This represents trading an item for itself (1:1 ratio).
+        """
+        np.fill_diagonal(matrix, 1.0)
+        return matrix
     
     def get_state_vector(self, market_data=None):
         """Create state vector for neural network input."""
@@ -114,12 +165,17 @@ class TradingAgent:
         
         # Apply update with learning rate
         learning_rate = self.config['learning']['matrix_update_rate']
-        self.trading_matrix = (1 - learning_rate) * self.trading_matrix + learning_rate * matrix_update
+        updated_matrix = (1 - learning_rate) * self.trading_matrix + learning_rate * matrix_update
         
-        # Ensure diagonal is 1 and values are positive
-        np.fill_diagonal(self.trading_matrix, 1.0)
-        self.trading_matrix = np.maximum(self.trading_matrix, 0.1)  # Minimum rate
-        self.trading_matrix = np.minimum(self.trading_matrix, 10.0)  # Maximum rate
+        # Ensure positive values and reasonable bounds
+        updated_matrix = np.maximum(updated_matrix, 0.1)  # Minimum rate
+        updated_matrix = np.minimum(updated_matrix, 10.0)  # Maximum rate
+        
+        # Enforce symmetric inverse property: trading_matrix[j,i] = 1/trading_matrix[i,j]
+        self.trading_matrix = self._enforce_symmetric_property(updated_matrix)
+        
+        # Explicit diagonal constraint as final safeguard
+        self.trading_matrix = self._enforce_diagonal_constraint(self.trading_matrix)
     
     def select_trade_action(self, market_data, other_agents_positions):
         """
@@ -134,7 +190,7 @@ class TradingAgent:
         
         best_trade = None
         best_value = -float('inf')
-        
+    
         # Evaluate potential trades with each other agent
         for other_agent_id, other_matrix in market_data.items():
             if other_agent_id == self.agent_id:
@@ -203,22 +259,28 @@ class TradingAgent:
             Total reward considering direct value and indirect trading opportunities
         """
         # Primary reward: quantity of desired item
-        primary_reward = self.inventory[self.desired_item]
+        # primary_reward = self.inventory[self.desired_item]
+        primary_reward = 0.0
         
         # Bonus for improvement over generation start
         improvement_bonus = (self.inventory[self.desired_item] - 
                            self.generation_start_inventory[self.desired_item])
-        
+
+        # Laziness penalty        
+        # laziness_penalty = -2.0 if self.inventory[self.desired_item] == self.generation_start_inventory[self.desired_item] else 0.0
+        laziness_penalty = 0.0
+
         # Penalty for having zero of desired item
         zero_penalty = -10.0 if self.inventory[self.desired_item] == 0 else 0.0
         
         # Small bonus for successful trades (encourages activity)
         trade_bonus = self.successful_trades * 0.1
+        # trade_bonus = 0.0
         
         # NEW: Strategic value based on trading opportunities
         strategic_value = self._calculate_strategic_value(market_data) if market_data else 0.0
         
-        total_reward = primary_reward + improvement_bonus + zero_penalty + trade_bonus + strategic_value
+        total_reward = primary_reward + improvement_bonus + zero_penalty + trade_bonus + strategic_value + laziness_penalty;
         return total_reward
     
     def _calculate_strategic_value(self, market_data):
@@ -421,6 +483,22 @@ class TradingAgent:
                 for param in self.network.parameters():
                     noise = torch.randn_like(param) * 0.01
                     param.add_(noise)
+        
+        # Mutate trading matrix while preserving symmetric property
+        if np.random.random() < mutation_rate:
+            # Add small noise to upper triangle only
+            for i in range(self.num_items):
+                for j in range(i + 1, self.num_items):  # Upper triangle only
+                    noise = np.random.normal(0, 0.05)  # Small mutation
+                    self.trading_matrix[i, j] += noise
+                    # Clamp to reasonable bounds
+                    self.trading_matrix[i, j] = np.clip(self.trading_matrix[i, j], 0.1, 10.0)
+            
+            # Enforce symmetric property after mutation
+            self.trading_matrix = self._enforce_symmetric_property(self.trading_matrix)
+            
+            # Explicit diagonal constraint as final safeguard
+            self.trading_matrix = self._enforce_diagonal_constraint(self.trading_matrix)
         
         # Mutate position slightly
         position_noise = np.random.normal(0, 1.0, 2)

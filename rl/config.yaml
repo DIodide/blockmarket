@@ -12,8 +12,8 @@ network:
   hidden_dim: 128  # Hidden layer dimension for neural networks
 
 learning:
-  learning_rate: 0.001  # Learning rate for neural network optimization
-  matrix_update_rate: 0.1  # Rate at which trading matrix is updated
+  learning_rate: 0.01  # Learning rate for neural network optimization
+  matrix_update_rate: 0.2  # Rate at which trading matrix is updated
 
 training:
   max_generations: 100  # Maximum number of generations to run

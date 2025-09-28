@@ -30,6 +30,7 @@ class SimulationSocketClient {
 
     this.setupEventHandlers();
   }
+  
 
   setupEventHandlers() {
     this.socket.on('connect', () => {

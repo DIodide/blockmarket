@@ -1,11 +1,16 @@
 import numpy as np
+from dotenv import load_dotenv
+import re
+import os
 import random
 import logging
 from collections import defaultdict
 from typing import Dict, List, Tuple, Optional
+from imagine import ChatMessage, ImagineClient
 
 logger = logging.getLogger(__name__)
 
+load_dotenv()
 
 class TradingEnvironment:
     def __init__(self, config):
@@ -50,6 +55,8 @@ class TradingEnvironment:
             agent_class: Class to use for creating agents
         """
         self.agents = []
+
+        self.client = ImagineClient(api_key= os.getenv('IMAGINE_API'), endpoint= os.getenv('IMAGINE_ENDPOINT_URL'))
         
         for i in range(self.population_size):
             # Random desired item for each agent
@@ -118,6 +125,8 @@ class TradingEnvironment:
         self.market_data = {}
         self.agent_positions = {}
         
+        
+
         for agent in self.agents:
             self.market_data[agent.agent_id] = agent.trading_matrix.copy()
             self.agent_positions[agent.agent_id] = agent.position.copy()
@@ -139,7 +148,65 @@ class TradingEnvironment:
             
             if trade_action is not None:
                 target_agent_id, item_giving, item_wanting, amount_wanting = trade_action
+
+                chat_reponse = self.client.chat(
+                    messages=[
+                        ChatMessage(role="system", content="You are a trading agent, you receive a dictionary (market_data) where " \
+                        "the keys are the ids of " \
+                        "all trading agents (including yourself) and the values are their corresponding trading matrix. " \
+                        "A trading matrix is an n by n matrix where n is the size of the number of items available, " \
+                        "each element A_ij in the matrix represents how many of the items[j] the agent is willing to " \
+                        "trade 1 of its items[i] for, where items is the list of all available items. You also receive a " \
+                        "preliminary trade request in the form of (b_i, b_j, D_i, D_j, D_amt), where b_i is your id, b_j is " \
+                        "the id of the agent you want to trade, D_i is the item you are offering, D_j is the item you expect to " \
+                        "receive from agent b_j, and D_amt is the amount of D_j you want. You also receive your current inventory, and the item" \
+                        "whose quantity you want to maximize (want_item). Your job is to determine if this prelimiary trade request is any good" \
+                        "if it is return it, if it is not, then return a new trade request in the format (b_i, b_j, D_i, D_j, D_amt)." \
+                        "Ensure that your response only consists of the trade request you want (either the preliminary one or something " \
+                        "you come up with) and nothing else"),
+
+                        ChatMessage(role="system", content="input:" \
+                                                f"market_data: {self.market_data}" \
+                                                f"inventory: {agent.inventory}" \
+                                                f"want_item: {agent.desired_item}"),
+                        ChatMessage(role="user", content="Given the following preliminary trade request:" \
+                                                f"({agent.agent_id, target_agent_id, item_giving, item_wanting, amount_wanting})" \
+                                                "Return the most optimal trade request given all the information you have" \
+                                                "(either return this preliminary trade request or come up with another" \
+                                                "with the correct format)")
+                    ],
+                    model="DeepSeek-R1-Distill-Llama-70B",
+                )
+
+                match = re.search(r"\(([^)]+)\)", chat_reponse.first_content)
+
+                pass_through = False
+
+                tokens = []
+
+                if match:
+                    tokens = [x.strip() for x in match.group(1).split(',')]
+                    if agent.agent_id != tokens[0]:
+                        pass_through = True
+                    if len(tokens) != 5:
+                        pass_through = True
+                    if tokens[2] not in self.items_list or tokens[3] not in self.items_list:
+                        pass_through = True 
+                    try:
+                        int(tokens[0][-1])
+                        int(tokens[1][-1])
+                        float(tokens[4])
+                    except:
+                        pass_through = True
+                else:
+                    pass_through = True
                 
+                if not pass_through:
+                    target_agent_id = tokens[1]
+                    item_giving = tokens[2]
+                    item_wanting = tokens[3]
+                    amount_wanting = tokens[4]
+
                 # Validate trade request
                 if self._validate_trade_request(agent, target_agent_id, item_giving, item_wanting, amount_wanting):
                     trade_requests.append((agent.agent_id, target_agent_id, item_giving, item_wanting, amount_wanting))

@@ -26,6 +26,11 @@ frontendNS.on("connection", (socket) => {
 
 mindFlayerNS.on("connection", (socket) => {
     console.log("MindFlayer client connected");
+    
+    socket.on("new data", (data) => {
+        console.log("Received new data from MindFlayer:", data);
+        frontendNS.emit("data_update", data);
+    });
 })
 const port = process.env.PORT || 3001;
 server.listen(port, "0.0.0.0", () => {

@@ -79,8 +79,8 @@ function App() {
       newInventories.delete(cellKey);
     } else {
       newSelectedCells.add(cellKey);
-      const initial_inventory = {"diamond":0, "gold":0, "apple":0, "emerald":0, "redstone":0}
-      newInventories.set(cellKey, initial_inventory);
+      // Don't set initial inventory here - let InventorySidePanel handle it
+      // The InventorySidePanel will generate random values when the cell is first selected
     }
     setInventories(newInventories);
     setSelectedCells(newSelectedCells);

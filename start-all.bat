@@ -11,6 +11,9 @@ start "ngrok" cmd /k "ngrok http 3001"
 REM Start Express server
 echo Starting Express server...
 start "Express Server" cmd /k "cd /d bm-express-controller\master-server && npm run dev"
+REM Starting Mineflayer server
+echo Starting Mineflayer server...
+start "Mineflayer Server" cmd /k "cd /d bm-mineflayer-controller && node socketReceiveNoQueue.js"
 
 REM Start Frontend
 echo Starting Frontend...

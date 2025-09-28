@@ -9,6 +9,8 @@ An innovative reinforcement learning platform that trains intelligent trading ag
 
 BlockMarket is a cutting-edge reinforcement learning environment where neural network agents learn how to maximize the amount of trades in a simulated trading floor (Kudos to the early 2000s floor traders in places like the New York Stock Exhcange (NYSE)). Our platform leverages the power of Qualcomm Snapdragon's dedicated NPU and powerful CPU to run complex neural networks locally, ensuring real-time decision-making with complete privacy preservation.
 
+Under each folder, there is a more in-depth README for each component.
+
 ## Team Members
 
 - **Ibraheem Amin** - ia8920@princeton.edu (<ibraheem.amin2@gmail.com>) (Team Lead) ([DIodide](https://github.com/DIodide))

@@ -1,0 +1,20 @@
+{
+  "name": "trading-simulation-socket-server",
+  "version": "1.0.0",
+  "description": "Test Socket.IO server for trading simulation",
+  "main": "test_socket_server.js",
+  "scripts": {
+    "start": "node test_socket_server.js",
+    "dev": "nodemon test_socket_server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["socket.io", "trading", "simulation"],
+  "author": "",
+  "license": "MIT"
+}

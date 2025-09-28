@@ -1,0 +1,12 @@
+# Socket.IO client for Python
+python-socketio[client]==5.9.0
+
+# Additional dependencies for the socket client
+requests==2.31.0
+websocket-client==1.6.4
+
+# Existing simulation dependencies
+numpy>=1.21.0
+torch>=1.11.0
+pyyaml>=6.0
+flask>=2.0.0

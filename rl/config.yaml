@@ -2,7 +2,7 @@ environment:
   world_size: 100.0  # Size of the 2D trading world
   max_trade_distance: 20.0  # Maximum distance for trades
   max_trade_amount: 5.0  # Maximum amount per trade
-  items_list: ['wood', 'stone', 'iron', 'gold', 'food', 'copper', 'silver', 'platinum']  # Available items
+  items_list: ['diamond', 'gold', 'apple', 'emerald', 'redstone']  # Available items (matching server data)
   population_size: 30  # Number of agents
   generation_length: 100  # Timesteps per generation
   survival_rate: 0.5  # Fraction of agents that survive each generation

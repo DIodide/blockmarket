@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import {atom} from 'jotai';
+import {useAtom} from 'jotai';
 import './App.css';
 
 // Components
@@ -8,6 +8,9 @@ import HeroSection from './components/HeroSection';
 import InputSection from './components/InputSection';
 import Grid from './components/Grid';
 import FeaturesSection from './components/FeaturesSection';
+// Atoms for inventory management
+import { inventoriesAtom } from "./atoms/inventory";
+
 
 // Hooks
 import useSocket from './hooks/useSocket';
@@ -16,8 +19,7 @@ function App() {
   const [playAreaSize, setPlayAreaSize] = useState('');
   const [showGrid, setShowGrid] = useState(false);
   const [selectedCells, setSelectedCells] = useState(new Set());
-  const inventoriesAtom = atom(new Map());
-  const currentAtom = atom(null)
+  const [inventories, setInventories] = useAtom(inventoriesAtom);
   
   const { isConnected, startSimulation } = useSocket();
 
@@ -49,13 +51,17 @@ function App() {
   const toggleCell = (row, col) => {
     const cellKey = `${row}-${col}`;
     const newSelectedCells = new Set(selectedCells);
+    const newInventories = new Map(inventories);
     
     if (newSelectedCells.has(cellKey)) {
       newSelectedCells.delete(cellKey);
+      newInventories.delete(cellKey);
     } else {
       newSelectedCells.add(cellKey);
+      const inital_inventory = {"diamond":0, "gold":0, "apple":0, "emerald":0, "redstone":0}
+      newInventories.set(cellKey, inital_inventory);
     }
-    
+    setInventories(newInventories);
     setSelectedCells(newSelectedCells);
   };
 

@@ -1,0 +1,68 @@
+# BlockMarket World Controller Configuration
+
+# WebSocket Server Configuration
+websocket:
+  # Enable WebSocket server
+  enabled: true
+  
+  # Port for the WebSocket server to listen on
+  port: 8080
+  
+  # Bind address (0.0.0.0 for all interfaces, 127.0.0.1 for localhost only)
+  bind-address: "0.0.0.0"
+  
+  # Maximum number of concurrent client connections
+  max-connections: 100
+
+# Command Execution Settings
+commands:
+  # Whether to require OP permissions for commands
+  require-op: true
+  
+  # List of allowed commands (empty list = allow all except blocked)
+  allowed-commands:
+    - "say"
+    - "tell"
+    - "msg"
+    - "give"
+    - "tp"
+    - "teleport"
+    - "gamemode"
+    - "weather"
+    - "time"
+    - "effect"
+    - "title"
+    - "broadcast"
+  
+  # List of blocked commands (these will never be executed)
+  blocked-commands:
+    - "stop"
+    - "restart"
+    - "reload"
+    - "ban"
+    - "kick"
+    - "op"
+    - "deop"
+    - "whitelist"
+
+# Message Processing
+messages:
+  # Whether to log all received WebSocket messages
+  log-messages: true
+  
+  # Whether to log all executed commands
+  log-commands: true
+  
+  # Prefix for messages sent to players
+  message-prefix: "&7[&6BlockMarket&7]&r "
+
+# Security Settings
+security:
+  # Whether to validate command syntax before execution
+  validate-commands: true
+  
+  # Maximum command length (0 = no limit)
+  max-command-length: 256
+  
+  # Whether to strip color codes from commands
+  strip-color-codes: true

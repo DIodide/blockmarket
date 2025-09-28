@@ -1,41 +1,41 @@
 environment:
-  world_size: 100.0  # Size of the 2D trading world
-  max_trade_distance: 20.0  # Maximum distance for trades
-  max_trade_amount: 5.0  # Maximum amount per trade
-  items_list: ['diamond', 'gold', 'apple', 'emerald', 'redstone']  # Available items (matching server data)
-  population_size: 5  # Number of agents
-  generation_length: 100  # Timesteps per generation
-  survival_rate: 0.5  # Fraction of agents that survive each generation
-  mutation_rate: 0.1  # Probability of mutation for offspring
+  world_size: 100.0 # Size of the 2D trading world
+  max_trade_distance: 20.0 # Maximum distance for trades
+  max_trade_amount: 5.0 # Maximum amount per trade
+  items_list: ["diamond", "gold", "apple", "emerald", "redstone"] # Available items (matching server data)
+  population_size: 10 # Number of agents
+  generation_length: 100 # Timesteps per generation
+  survival_rate: 0.5 # Fraction of agents that survive each generation
+  mutation_rate: 0.1 # Probability of mutation for offspring
 
 network:
-  hidden_dim: 128  # Hidden layer dimension for neural networks
+  hidden_dim: 128 # Hidden layer dimension for neural networks
 
 learning:
-  learning_rate: 0.001  # Learning rate for neural network optimization
-  matrix_update_rate: 0.1  # Rate at which trading matrix is updated
+  learning_rate: 0.001 # Learning rate for neural network optimization
+  matrix_update_rate: 0.1 # Rate at which trading matrix is updated
 
 training:
-  max_generations: 100  # Maximum number of generations to run
-  simulation_speed: 0.01  # Sleep time between timesteps (seconds)
-  model_save_frequency: 10  # Save models every N generations
-  model_save_path: 'models/trading_agents'  # Directory to save models
-  log_frequency: 10  # Log summary every N timesteps
-  early_stopping_patience: 20  # Stop if no improvement for N generations
-  target_fitness: 100.0  # Target fitness to consider problem solved
+  max_generations: 100 # Maximum number of generations to run
+  simulation_speed: 0.01 # Sleep time between timesteps (seconds)
+  model_save_frequency: 10 # Save models every N generations
+  model_save_path: "models/trading_agents" # Directory to save models
+  log_frequency: 10 # Log summary every N timesteps
+  early_stopping_patience: 20 # Stop if no improvement for N generations
+  target_fitness: 250.0 # Target fitness to consider problem solved
 
 server:
-  host: '0.0.0.0'  # Web server host
-  port: 8080  # Web server port
-  debug: false  # Flask debug mode
+  host: "0.0.0.0" # Web server host
+  port: 8080 # Web server port
+  debug: false # Flask debug mode
 
 socket:
-  enabled: true  # Enable socket client functionality
-  server_url: 'http://localhost:3001'  # Socket.IO server URL
-  namespace: '/model'  # Namespace to connect to
-  auto_connect: true  # Automatically connect on startup
+  enabled: true # Enable socket client functionality
+  server_url: "http://localhost:3001" # Socket.IO server URL
+  namespace: "/model" # Namespace to connect to
+  auto_connect: true # Automatically connect on startup
 
 logging:
-  level: 'INFO'  # Logging level
-  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'  # Log format
-  log_file: 'trading.log'  # Log file path
+  level: "INFO" # Logging level
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s" # Log format
+  log_file: "trading.log" # Log file path

@@ -55,6 +55,12 @@ graph TB
             FLOOR_BUILDER[Trading Floor Builder<br/>TradingFloorBuilder.java<br/>- Glass Ceiling<br/>- Lighting System]
             CMD_EXEC[Command Executor<br/>CommandExecutor.java<br/>- Safe Command Execution]
         end
+
+        subgraph "Bot Controller (Node.js)"
+            MINEFLAYER[Mineflayer Controller<br/>socketRecieveNoQueue.js<br/>Port: Socket.IO<br/>- Bot Spawning<br/>- Trading Simulation]
+            SIM_CLASS[Simulation Class<br/>simulationClass.js<br/>- Grid-based Bot Placement<br/>- Trade Orchestration]
+            BOT_SIM[Bot Simulation<br/>sim.js<br/>- Pathfinding<br/>- Item Exchange<br/>- Visual Effects]
+        end
     end
 
     subgraph "Minecraft Server"
@@ -79,17 +85,23 @@ graph TB
     REACT <-->|State<br/>Updates| HOOKS
     HOOKS <-->|Global<br/>State| ATOMS
 
+    %% Bot Controller Internal Flow
+    MINEFLAYER -->|Simulation<br/>Commands| SIM_CLASS
+    SIM_CLASS -->|Bot<br/>Management| BOT_SIM
+
     %% Socket Tunneling & Data Flow
     FLASK ===>|WebSocket<br/>Stream + AI Analysis| REACT
     REACT ===>|Commands| EXPRESS
     EXPRESS ===>|Relay| WS_SERVER
     LLM -.->|AI Analysis<br/>API Endpoints| REACT
+    FLASK ===>|Socket.IO<br/>Simulation Commands| MINEFLAYER
 
     %% Minecraft Integration
     WS_SERVER <-->|WebSocket<br/>Protocol| PLUGIN
     PLUGIN -->|Bukkit API| MC
     FLOOR_BUILDER -->|Build<br/>Commands| PLUGIN
     CMD_EXEC -->|Execute| PLUGIN
+    BOT_SIM -->|Mineflayer<br/>Bot Control| MC
 
     %% User Interactions
     USER[User]
@@ -107,11 +119,12 @@ graph TB
     class ENV,AGENT,TRAIN,FLASK,LLM rlStyle
     class EXPRESS,ROUTES,REACT,HOOKS,ATOMS expressStyle
     class WS_SERVER,FLOOR_BUILDER,CMD_EXEC,MC,PLUGIN mcStyle
+    class MINEFLAYER,SIM_CLASS,BOT_SIM expressStyle
 ```
 
 ### How It Works
 
-1. **Three Monorepos Architecture**:
+1. **Four Monorepos Architecture**:
 
    **RL Monorepo (Python)**:
 
@@ -134,6 +147,14 @@ graph TB
    - Trading floor builder creating 3D structures in Minecraft
    - Safe command execution with configurable security
 
+   **Bot Controller Monorepo (Node.js)**:
+
+   - `socketRecieveNoQueue.js`: Socket.IO client receiving simulation commands from RL environment
+   - `simulationClass.js`: Manages bot grid placement and trade orchestration
+   - `sim.js`: Core Mineflayer bot simulation with pathfinding, item exchange, and visual effects
+   - Real-time bot spawning and control in Minecraft for trading visualization
+   - Creative mode trading animations with particle effects and item exchanges
+
 2. **Socket Tunneling & AI Analysis Flow**:
 
    ```
@@ -142,6 +163,8 @@ graph TB
    LLM Summarizer → AI Analysis ────────┘
                          ↓
    Minecraft Server ← Plugin ← WebSocket ← Express API
+                         ↑
+   Bot Controller ← Socket.IO ← Flask RL Environment
    ```
 
    - Flask streams environment updates and AI analysis to React dashboard
@@ -150,6 +173,8 @@ graph TB
    - React sends commands through Express API
    - Express relays commands to World Controller WebSocket
    - Plugin executes commands in Minecraft world
+   - Bot Controller receives simulation commands from Flask via Socket.IO
+   - Mineflayer bots spawn and perform trading visualizations in Minecraft
 
 3. **NPU Acceleration**:
 
@@ -164,6 +189,7 @@ graph TB
    - **Port 3000**: React development server
    - **Port 8080**: WebSocket server for Minecraft integration
    - **Port 25565**: Minecraft server (Paper 1.20.6)
+   - **Socket.IO**: Bot Controller connection to RL environment
 
 ### Key Innovation Points:
 
@@ -171,6 +197,7 @@ graph TB
 - **AI-Powered Market Analysis**: Real-time LLM summaries using Imagine SDK (Llama-3.1-8B) provide intelligent insights on trading patterns, agent performance, and market dynamics every half generation
 - **Spatial Trading Dynamics**: Agents exist in a 2D world where distance affects trading probability, creating realistic market dynamics
 - **Minecraft Visualization**: Real-world trading scenarios are brought to life through interactive Minecraft environments, making complex AI behaviors visually comprehensible
+- **Automated Bot Simulation**: Mineflayer-powered bots automatically spawn and perform trading activities in Minecraft, providing real-time visual feedback of AI agent interactions
 - **Genetic Evolution**: Population-based training with genetic algorithms ensures continuous improvement of trading strategies
 - **Privacy-First Design**: All AI computations run locally on the Snapdragon-powered device, ensuring complete data privacy
 
@@ -420,6 +447,13 @@ The system exhibits sophisticated emergent properties:
 │  │  • WebSocket Server :8080 ←─────────────────────────────┘   │
 │  │  • Trading Floor Builder                                │   │
 │  │  • Bukkit Plugin Integration                            │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │        Bot Controller Monorepo (Node.js)                │   │
+│  │  • Mineflayer Bot Control (socketRecieveNoQueue.js)     │   │
+│  │  • Grid-based Bot Spawning                              │   │
+│  │  • Trading Visualization & Animation                    │   │
 │  └───────────────┬─────────────────────────────────────────┘   │
 └─────────────────────┼───────────────────────────────────────────┘
                      │
@@ -428,9 +462,11 @@ The system exhibits sophisticated emergent properties:
          │  Paper 1.20.6 :25565   │
          │  • 3D Trading Floors   │
          │  • Visual Simulation   │
+         │  • Mineflayer Bots     │
          └────────────────────────┘
 
 Socket Flow: RL → Flask → React → Express → WebSocket → Minecraft
+Bot Control: RL → Flask → Socket.IO → Bot Controller → Minecraft Bots
 AI Analysis: LLM Summarizer → Flask Dashboard (Every Half Generation)
 ```
 
@@ -495,7 +531,19 @@ the path and server url in the express service (we would set a .env if we had so
 Our thing is a bit three pronged so its a little more setup, but all of it
 can theoretically run locally. Minecraft Servers are very single threaded CPU intensive.
 
-### 5. Set Up Express Controller (Backend)
+### 5. Set Up Bot Controller (Mineflayer)
+
+```bash
+cd ../bm-mineflayer-controller/
+
+# Install Node dependencies for Mineflayer bot control
+npm install
+
+# The entry point is socketRecieveNoQueue.js which connects via Socket.IO
+# to receive simulation commands from the RL environment
+```
+
+### 6. Set Up Express Controller (Backend)
 
 ```bash
 cd ../bm-express-controller/master-server/
@@ -508,7 +556,7 @@ cp .env.example .env
 # Edit .env to set appropriate values
 ```
 
-### 6. Set Up Frontend Dashboard
+### 7. Set Up Frontend Dashboard
 
 ```bash
 cd ../frontend/
@@ -520,7 +568,7 @@ npm install
 npm run build
 ```
 
-### 7. Configure Minecraft Server
+### 8. Configure Minecraft Server
 
 Edit `plugins/bm-world-controller/config.yml`:
 
@@ -559,14 +607,21 @@ cd blockmarket/bm-express-controller/master-server/
 npm start
 ```
 
-### 4. Launch the Visualization Dashboard
+### 4. Start the Bot Controller
+
+```bash
+cd blockmarket/bm-mineflayer-controller/
+node socketRecieveNoQueue.js
+```
+
+### 5. Launch the Visualization Dashboard
 
 ```bash
 cd blockmarket/rl/
 python web_server.py --port 5001
 ```
 
-### 5. Access the Application
+### 6. Access the Application
 
 - **Web Dashboard**: http://localhost:5001
 - **Minecraft Server**: Connect to `localhost:25565`

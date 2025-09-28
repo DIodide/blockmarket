@@ -3,6 +3,7 @@
 **Track 3: RL Agent Arena Submission**
 
 ![minecraft picture](minecrafttease.png)
+![start screen picture](startscreen.png)
 ![flask dashboard picture](flasktease.png)
 
 An innovative reinforcement learning platform that trains intelligent trading agents in a spatially-aware bartering economy, optimized for Qualcomm Snapdragon X Elite NPU acceleration and beautifully visualized through Minecraft integration.

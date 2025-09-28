@@ -9,18 +9,38 @@ const InventorySidePanel = ({ selectedCells, isVisible, onEditingInventoriesChan
   // Initialize editing inventories when selected cells change
   useEffect(() => {
     const newEditingInventories = new Map();
+    const newInventories = new Map(inventories);
+    let hasNewRandomData = false;
+    
     selectedCells.forEach(cellKey => {
-      const currentInventory = inventories.get(cellKey) || {
-        diamond: 0,
-        gold: 0,
-        apple: 0,
-        emerald: 0,
-        redstone: 0
-      };
-      newEditingInventories.set(cellKey, { ...currentInventory });
+      // Check if we already have inventory data for this cell
+      const existingInventory = inventories.get(cellKey);
+      
+      if (existingInventory) {
+        // Use existing inventory data
+        newEditingInventories.set(cellKey, { ...existingInventory });
+      } else {
+        // Generate random inventory values between 0 and 10
+        const randomInventory = {
+          diamond: Math.floor(Math.random() * 11), // 0-10
+          gold: Math.floor(Math.random() * 11),
+          apple: Math.floor(Math.random() * 11),
+          emerald: Math.floor(Math.random() * 11),
+          redstone: Math.floor(Math.random() * 11)
+        };
+        newEditingInventories.set(cellKey, randomInventory);
+        newInventories.set(cellKey, randomInventory);
+        hasNewRandomData = true;
+      }
     });
+    
     setEditingInventories(newEditingInventories);
-  }, [selectedCells, inventories]);
+    
+    // Update the global inventories atom if we generated new random data
+    if (hasNewRandomData) {
+      setInventories(newInventories);
+    }
+  }, [selectedCells, inventories, setInventories]);
 
   // Notify parent component when editing inventories change
   useEffect(() => {

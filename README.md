@@ -1,6 +1,6 @@
-# BlockMarket: Multi-Agent Reinforcement Learning Trading Arena
+# BlockMarket: Multi-Agent Reinforcement Learning Trading Arena 
 
-**Track 3: RL Agent Arena Submission**
+**Track 3: RL Agent Arena Submission** (Qualcomm Hackathon: Honorable Mention ("Cutest" Presentation)
 
 ![minecraft picture](minecrafttease.png)
 ![start screen picture](startscreen.png)

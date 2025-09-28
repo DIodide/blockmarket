@@ -3,6 +3,7 @@
     "minecraft-data": "^3.98.0",
     "mineflayer": "^4.33.0",
     "mineflayer-pathfinder": "^2.4.5",
+    "socket.io-client": "^4.8.1",
     "vec3": "^0.1.10"
   }
 }

@@ -10,3 +10,8 @@ python-socketio[client]>=5.0.0
 
 # Configuration and utilities
 PyYAML>=6.0
+
+# LLM integration for AI summaries
+langchain>=0.1.0
+langchain-core>=0.1.0
+requests>=2.28.0

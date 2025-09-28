@@ -7,91 +7,138 @@ import json
 def create_app(current_state, env):
     """Create and configure Flask application for trading visualization."""
     app = Flask(__name__)
-    
+
     # Configure Flask to suppress access logs for cleaner training logs
-    flask_log = flask_logging.getLogger('werkzeug')
+    flask_log = flask_logging.getLogger("werkzeug")
     flask_log.setLevel(flask_logging.ERROR)  # Only show errors, not access logs
-    
-    @app.route('/')
+
+    @app.route("/")
     def index():
         """Serve the main visualization page."""
         return render_template_string(HTML_TEMPLATE)
 
-    @app.route('/styles.css')
+    @app.route("/styles.css")
     def styles():
         """Serve CSS styles."""
-        return CSS_STYLES, 200, {'Content-Type': 'text/css'}
+        return CSS_STYLES, 200, {"Content-Type": "text/css"}
 
-    @app.route('/visualization.js')
+    @app.route("/visualization.js")
     def visualization():
         """Serve JavaScript for visualization."""
-        return JS_VISUALIZATION, 200, {'Content-Type': 'application/javascript'}
+        return JS_VISUALIZATION, 200, {"Content-Type": "application/javascript"}
 
-    @app.route('/state')
+    @app.route("/state")
     def get_state():
         """Get current environment state."""
         return jsonify(current_state)
 
-    @app.route('/environment')
+    @app.route("/environment")
     def get_environment():
         """Get detailed environment information."""
         if env:
             env_state = env.get_state()
             return jsonify(env_state)
         else:
-            return jsonify({'error': 'Environment not available'})
-    
-    @app.route('/agents')
+            return jsonify({"error": "Environment not available"})
+
+    @app.route("/agents")
     def get_agents():
         """Get detailed agent information."""
         if env and env.agents:
             agents_data = []
             for agent in env.agents:
                 agent_data = {
-                    'id': agent.agent_id,
-                    'position': agent.position.tolist(),
-                    'inventory': agent.inventory,
-                    'desired_item': agent.desired_item,
-                    'fitness': agent.get_fitness(),  # Note: market_data not available in web context
-                    'successful_trades': agent.successful_trades,
-                    'attempted_trades': agent.attempted_trades,
-                    'trading_matrix': agent.trading_matrix.tolist()
+                    "id": agent.agent_id,
+                    "position": agent.position.tolist(),
+                    "inventory": agent.inventory,
+                    "desired_item": agent.desired_item,
+                    "fitness": agent.get_fitness(),  # Note: market_data not available in web context
+                    "successful_trades": agent.successful_trades,
+                    "attempted_trades": agent.attempted_trades,
+                    "trading_matrix": agent.trading_matrix.tolist(),
                 }
                 agents_data.append(agent_data)
             return jsonify(agents_data)
         else:
             return jsonify([])
-    
-    @app.route('/trades')
+
+    @app.route("/trades")
     def get_trades():
         """Get recent trade history."""
         if env:
             return jsonify(env.trade_history[-50:])  # Last 50 trades
         else:
             return jsonify([])
-    
-    @app.route('/statistics')
+
+    @app.route("/statistics")
     def get_statistics():
         """Get environment statistics."""
         if env:
             try:
-                from .utils import (calculate_trade_statistics, calculate_fitness_statistics, 
-                                  analyze_trading_matrices, calculate_inventory_diversity)
+                from .utils import (
+                    calculate_trade_statistics,
+                    calculate_fitness_statistics,
+                    analyze_trading_matrices,
+                    calculate_inventory_diversity,
+                )
             except ImportError:
-                from utils import (calculate_trade_statistics, calculate_fitness_statistics, 
-                                 analyze_trading_matrices, calculate_inventory_diversity)
-            
+                from utils import (
+                    calculate_trade_statistics,
+                    calculate_fitness_statistics,
+                    analyze_trading_matrices,
+                    calculate_inventory_diversity,
+                )
+
             stats = {
-                'trade_stats': calculate_trade_statistics(env.trade_history),
-                'fitness_stats': calculate_fitness_statistics(env.agents),
-                'matrix_analysis': analyze_trading_matrices(env.agents, env.items_list),
-                'inventory_diversity': calculate_inventory_diversity(env.agents, env.items_list),
-                'generation_stats': env.generation_stats[-10:] if env.generation_stats else []
+                "trade_stats": calculate_trade_statistics(env.trade_history),
+                "fitness_stats": calculate_fitness_statistics(env.agents),
+                "matrix_analysis": analyze_trading_matrices(env.agents, env.items_list),
+                "inventory_diversity": calculate_inventory_diversity(
+                    env.agents, env.items_list
+                ),
+                "generation_stats": env.generation_stats[-10:]
+                if env.generation_stats
+                else [],
             }
             return jsonify(stats)
         else:
             return jsonify({})
-    
+
+    @app.route("/llm_summary")
+    def get_llm_summary():
+        """Get the latest LLM summary."""
+        try:
+            from .llm_summarizer import get_summarizer
+        except ImportError:
+            from llm_summarizer import get_summarizer
+
+        summarizer = get_summarizer()
+        latest_summary = summarizer.get_latest_summary()
+
+        if latest_summary:
+            return jsonify(latest_summary)
+        else:
+            return jsonify(
+                {
+                    "summary": "No AI analysis available yet. Summary will be generated every half generation.",
+                    "timestamp": 0,
+                    "generation": 0,
+                    "timestep": 0,
+                }
+            )
+
+    @app.route("/llm_summaries")
+    def get_llm_summaries():
+        """Get recent LLM summaries."""
+        try:
+            from .llm_summarizer import get_summarizer
+        except ImportError:
+            from llm_summarizer import get_summarizer
+
+        summarizer = get_summarizer()
+        recent_summaries = summarizer.get_recent_summaries(count=5)
+        return jsonify(recent_summaries)
+
     return app
 
 
@@ -176,6 +223,20 @@ HTML_TEMPLATE = """
                 <div class="panel">
                     <h3>🏆 Top Agents</h3>
                     <div id="top-agents" class="agents-list"></div>
+                </div>
+                
+                <div class="panel llm-panel">
+                    <h3>🤖 AI Market Analysis</h3>
+                    <div class="llm-status">
+                        <span class="label">Last Updated:</span>
+                        <span id="llm-timestamp">Not yet available</span>
+                    </div>
+                    <div id="llm-summary" class="llm-summary">
+                        Generating AI analysis... Summary will be available every half generation.
+                    </div>
+                    <div class="llm-footer">
+                        <small>Powered by Qualcomm Snapdragon AI • Imagine SDK</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -364,6 +425,92 @@ header h1 {
     font-style: italic;
 }
 
+/* LLM Summary Panel Styles */
+.llm-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 2px solid #5a67d8;
+}
+
+.llm-panel h3 {
+    color: white;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+}
+
+.llm-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.llm-status .label {
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+}
+
+.llm-summary {
+    background: rgba(255,255,255,0.15);
+    padding: 15px;
+    border-radius: 10px;
+    line-height: 1.6;
+    font-size: 0.95em;
+    min-height: 120px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border-left: 4px solid #48bb78;
+    white-space: pre-wrap;
+}
+
+.llm-summary::-webkit-scrollbar {
+    width: 6px;
+}
+
+.llm-summary::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+}
+
+.llm-summary::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
+
+.llm-summary::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+.llm-footer {
+    text-align: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.llm-footer small {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.8em;
+}
+
+.llm-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #48bb78;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .main-content {
@@ -474,12 +621,13 @@ class TradingVisualization {
     
     async fetchData() {
         try {
-            const [stateResponse, agentsResponse, tradesResponse, statsResponse, socketResponse] = await Promise.all([
+            const [stateResponse, agentsResponse, tradesResponse, statsResponse, socketResponse, llmResponse] = await Promise.all([
                 fetch('/state'),
                 fetch('/agents'),
                 fetch('/trades'),
                 fetch('/statistics'),
-                fetch('/socket_status').catch(() => ({ json: () => ({ connected: false }) }))
+                fetch('/socket_status').catch(() => ({ json: () => ({ connected: false }) })),
+                fetch('/llm_summary').catch(() => ({ json: () => ({ summary: 'LLM service unavailable' }) }))
             ]);
             
             const state = await stateResponse.json();
@@ -487,6 +635,7 @@ class TradingVisualization {
             this.trades = await tradesResponse.json();
             this.statistics = await statsResponse.json();
             this.socketStatus = await socketResponse.json();
+            this.llmSummary = await llmResponse.json();
             
             this.updateUI(state);
         } catch (error) {
@@ -525,6 +674,7 @@ class TradingVisualization {
         this.updateTradesList();
         this.updateTopAgents();
         this.updateGenerationChart();
+        this.updateLLMSummary();
     }
     
     drawWorld() {
@@ -681,6 +831,38 @@ class TradingVisualization {
         this.generationChart.data.datasets[0].data = bestFitness;
         this.generationChart.data.datasets[1].data = avgFitness;
         this.generationChart.update('none');
+    }
+    
+    updateLLMSummary() {
+        const summaryElement = document.getElementById('llm-summary');
+        const timestampElement = document.getElementById('llm-timestamp');
+        
+        if (!this.llmSummary) return;
+        
+        // Update summary content
+        if (this.llmSummary.summary) {
+            summaryElement.textContent = this.llmSummary.summary;
+            summaryElement.style.fontStyle = 'normal';
+        } else {
+            summaryElement.textContent = 'Generating AI analysis... Summary will be available every half generation.';
+            summaryElement.style.fontStyle = 'italic';
+        }
+        
+        // Update timestamp
+        if (this.llmSummary.timestamp && this.llmSummary.timestamp > 0) {
+            const date = new Date(this.llmSummary.timestamp * 1000);
+            const timeString = date.toLocaleTimeString();
+            timestampElement.textContent = `Gen ${this.llmSummary.generation || 0} • ${timeString}`;
+            timestampElement.style.color = 'rgba(255,255,255,0.9)';
+        } else {
+            timestampElement.textContent = 'Not yet available';
+            timestampElement.style.color = 'rgba(255,255,255,0.6)';
+        }
+        
+        // Add loading indicator if summary is being generated
+        if (this.llmSummary.summary && this.llmSummary.summary.includes('Generating')) {
+            timestampElement.innerHTML = '<span class="llm-loading"></span> Generating...';
+        }
     }
     
     startUpdating() {

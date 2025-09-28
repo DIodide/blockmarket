@@ -94,6 +94,17 @@ pip install --upgrade pip
 print_status "Installing RL dependencies..."
 pip install -r requirements.txt
 
+# Set environment variables for Imagine SDK
+print_status "Configuring Imagine SDK environment..."
+export IMAGINE_API_KEY="301f49b1-6860-40c9-adb6-12ae19d84645"
+export IMAGINE_ENDPOINT_URL="https://aisuite.cirrascale.com/apis/v2"
+
+# Create environment file for persistence
+cat > .env << EOF
+IMAGINE_API_KEY=301f49b1-6860-40c9-adb6-12ae19d84645
+IMAGINE_ENDPOINT_URL=https://aisuite.cirrascale.com/apis/v2
+EOF
+
 # Check if Qualcomm AI Hub is available (optional)
 if pip show qai-hub &> /dev/null; then
     print_status "Qualcomm AI Hub detected - NPU optimization available"

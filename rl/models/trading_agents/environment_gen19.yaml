@@ -57,267 +57,267 @@ generation_stats:
     - -1
     - 0
   - !!binary |
-    jX+LqniPQkA=
+    sFWZxXZnOkA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    3FQ6b7hkSUA=
+    +0+mHoTfQkA=
   generation: 0
   total_trades: 4
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    kixrylrZOEA=
+    7mjp15aHMEA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    2m0p6XTkNUA=
+    WjcdWJdyPUA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    0GGCHol3PkA=
+    sNv2CNnrQkA=
   generation: 1
   total_trades: 0
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    JgvTbQKCMEA=
+    hzpVu5erNkA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    YrlqOIoOP0A=
+    yyM9CN/eO0A=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    4BCpiekpUEA=
+    d5PO4sZmQ0A=
   generation: 2
-  total_trades: 196
+  total_trades: 100
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    El0a4ZENMUA=
+    nrcrY+o8MEA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    ptCtYervOkA=
+    r5zvAXlBNUA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    NGJ3AQ8vT0A=
+    AGRIX0hZRkA=
   generation: 3
-  total_trades: 3
+  total_trades: 14
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    9G8KcpT6AUA=
+    Xm/jfT1/EMA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    zuw+1iLeNkA=
+    nS/DGogvOEA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    yGrRUGWyP0A=
+    Ykx/4qrMQEA=
   generation: 4
-  total_trades: 0
-  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    hc6yjCy/MEA=
-- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    OkuNJhsaN0A=
-  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    kLS7SHpRQUA=
-  generation: 5
-  total_trades: 31
-  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    vMoZ001JH0A=
-- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    FK585y4fNEA=
-  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    JGPriTnvN0A=
-  generation: 6
-  total_trades: 19
-  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    JP538Gh8MUA=
-- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    nqtD3VG1M0A=
-  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    jYrGR1CkN0A=
-  generation: 7
   total_trades: 1
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    /cZjm7nMLEA=
+    brA2yAA5MEA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    v/xrrJB7N0A=
+    Lh9iR2wHN0A=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    NpQc9M0VP0A=
+    1lvscEppPEA=
+  generation: 5
+  total_trades: 0
+  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    M38nWtLGM0A=
+- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    1oMvykJVNEA=
+  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    UrvncRRRNkA=
+  generation: 6
+  total_trades: 6
+  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    G9JszdYPMEA=
+- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    RN+cZLElNkA=
+  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    H+3qc66BPUA=
+  generation: 7
+  total_trades: 0
+  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    4Fr/ZmcOMUA=
+- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    nUb/LvL+NUA=
+  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    XQwDbKvBOUA=
   generation: 8
-  total_trades: 3
+  total_trades: 0
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    bNr2L80sMUA=
+    PrDIQxMsMEA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    CrR3RktENEA=
+    BezrJNWKN0A=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    bGnT6gTVOUA=
+    LCYaaT4OPEA=
   generation: 9
-  total_trades: 0
+  total_trades: 22
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    z7POtmFaLEA=
+    skNnelHgMkA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    ir0P+bXRNEA=
+    qSoQfzpQNEA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    bW2wjt+lPUA=
+    k6oQOPUEO0A=
   generation: 10
-  total_trades: 0
+  total_trades: 1
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    O03nv9rpK0A=
+    h03wGfMTL0A=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    JwLdb0O4NkA=
+    M86i0KBjOUA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    rYdiGumkPUA=
+    5IdGdH+JSEA=
   generation: 11
+  total_trades: 13
+  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    qHlDhT+qMEA=
+- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    cmN2T4KbNkA=
+  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    GQY17p7QPEA=
+  generation: 12
   total_trades: 0
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    eSB+vGfILkA=
+    Gbaj77HmMUA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    52cfuP1zN0A=
+    3Vj/B1cSNkA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    toEsYSt6PUA=
-  generation: 12
-  total_trades: 8
-  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    D59PncpaM0A=
-- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    AJXalpv5NEA=
-  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    znxs3FUwO0A=
+    9IrICfoKOUA=
   generation: 13
   total_trades: 0
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    XxJwfM6gMEA=
+    qLdoJrVUM0A=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    ENXrRKvMNkA=
+    gs3uZXEoOUA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    P6ABEbaXPkA=
+    ADfbrp3aPEA=
   generation: 14
-  total_trades: 0
+  total_trades: 1
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    qcoHZyh3MkA=
+    goKUqPZpNUA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    vjk2/SldNkA=
+    VnM+zxEaOEA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    8kOUauByQEA=
+    GbOnBGn+O0A=
   generation: 15
   total_trades: 0
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    qjs9u/YLKUA=
+    Szls253kMkA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    qDNT4fOYNUA=
+    CLbBrnRqN0A=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    /f8iQqnLQUA=
+    mhgiteAMQ0A=
   generation: 16
   total_trades: 0
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    q8moRLcfLkA=
+    RDEBn/WsMUA=
 - avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    +TmwOKGuN0A=
+    DRbOrw6nPUA=
   best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    RZzQ12aAPUA=
+    utwZUssnQ0A=
   generation: 17
-  total_trades: 0
-  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    tdZsSdqgMUA=
-- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    /YDblaQaPUA=
-  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
-  - *id001
-  - !!binary |
-    zTL3KoJ/RkA=
-  generation: 18
   total_trades: 1
   worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
   - *id001
   - !!binary |
-    QOKse7Q6M0A=
+    dBovSwHnMkA=
+- avg_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    Pdpw1vDXO0A=
+  best_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    7PBnxrEXQkA=
+  generation: 18
+  total_trades: 0
+  worst_fitness: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    o/WrJk+cN0A=
 timestep: 1900

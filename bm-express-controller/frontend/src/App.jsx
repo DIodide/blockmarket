@@ -58,8 +58,8 @@ function App() {
       newInventories.delete(cellKey);
     } else {
       newSelectedCells.add(cellKey);
-      const inital_inventory = {"diamond":0, "gold":0, "apple":0, "emerald":0, "redstone":0}
-      newInventories.set(cellKey, inital_inventory);
+      const initial_inventory = {"diamond":0, "gold":0, "apple":0, "emerald":0, "redstone":0}
+      newInventories.set(cellKey, initial_inventory);
     }
     setInventories(newInventories);
     setSelectedCells(newSelectedCells);

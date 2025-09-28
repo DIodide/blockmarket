@@ -1,4 +1,5 @@
 import React from 'react';
+import InventorySidePanel from './InventorySidePanel';
 
 const Grid = ({ 
   playAreaSize, 
@@ -35,14 +36,20 @@ const Grid = ({
   return (
     <div className="grid-section">
       <h3>Select Areas for Trading ({selectedCells.size} selected)</h3>
-      <div 
-        className="grid-container" 
-        style={{
-          gridTemplateColumns: `repeat(${parseInt(playAreaSize)}, 1fr)`,
-          gridTemplateRows: `repeat(${parseInt(playAreaSize)}, 1fr)`
-        }}
-      >
-        {renderGrid()}
+      <div className="grid-with-panel">
+        <div 
+          className="grid-container" 
+          style={{
+            gridTemplateColumns: `repeat(${parseInt(playAreaSize)}, 1fr)`,
+            gridTemplateRows: `repeat(${parseInt(playAreaSize)}, 1fr)`
+          }}
+        >
+          {renderGrid()}
+        </div>
+        <InventorySidePanel 
+          selectedCells={selectedCells}
+          isVisible={true}
+        />
       </div>
       <div className="grid-controls">
         <div className="grid-controls-top">
